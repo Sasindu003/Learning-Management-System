@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  admin/announcements.html — Admin announcements with type categorization.
+  Sprint 1: Added type dropdown (GENERAL, EXAM, HOLIDAY) and type badge display.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Manage Announcements')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>📢 Manage Announcements</h1>
+                <p class="page-subtitle">Post notifications visible to all users</p>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <!-- Post Form -->
+            <div class="card form-card">
+                <h2 class="card-title">Post New Announcement</h2>
+                <form th:action="@{/admin/announcements}" method="post">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" placeholder="e.g., Mid-Term Exam Schedule"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="type">Type</label>
+                            <select id="type" name="type" required>
+                                <option value="GENERAL">📌 General</option>
+                                <option value="EXAM">📝 Exam Notice</option>
+                                <option value="HOLIDAY">🎉 Holiday Notice</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">Content</label>
+                        <textarea id="content" name="content" rows="4"
+                            placeholder="Write the announcement details here..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Announcement</button>
+                </form>
+            </div>
+
+            <!-- Announcements List -->
+            <div class="card">
+                <h2 class="card-title">Previous Announcements</h2>
+                <div th:if="${#lists.isEmpty(announcements)}" class="empty-state">
+                    <p>No announcements posted yet.</p>
+                </div>
+                <div th:each="announcement : ${announcements}" class="announcement-card">
+                    <div class="announcement-header">
+                        <div>
+                            <span class="announcement-type-badge"
+                                th:classappend="${announcement.type == 'EXAM'} ? 'type-exam' : (${announcement.type == 'HOLIDAY'} ? 'type-holiday' : 'type-general')"
+                                th:text="${announcement.type}">GENERAL</span>
+                            <h3 th:text="${announcement.title}" style="display:inline; margin-left:0.5rem;">Title</h3>
+                        </div>
+                        <form th:action="@{/admin/announcements/delete/{id}(id=${announcement.id})}" method="post"
+                            class="inline-form">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Delete this announcement?')">Delete</button>
+                        </form>
+                    </div>
+                    <p th:text="${announcement.content}">Content</p>
+                    <div class="announcement-meta">
+                        <span>Posted by <strong th:text="${announcement.postedBy?.fullName}">Admin</strong></span>
+                        <span th:text="${#temporals.format(announcement.createdAt, 'MMM dd, yyyy HH:mm')}">Date</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
