@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!-- dashboard-teacher.html — Teacher dashboard with Sprint 1 quiz stats. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Teacher Dashboard')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>Welcome, <span th:text="${user?.fullName}">Teacher</span>! 👋</h1>
+                <p class="page-subtitle">Manage your lessons, assignments, quizzes, and class announcements</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card stat-card-blue">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-info">
+                        <span class="stat-number" th:text="${totalLessons}">0</span>
+                        <span class="stat-label">Lesson Notes</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-green">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <span class="stat-number" th:text="${totalAssignments}">0</span>
+                        <span class="stat-label">Assignments</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-card-purple">
+                    <div class="stat-icon">❓</div>
+                    <div class="stat-info">
+                        <span class="stat-number" th:text="${totalQuizzes}">0</span>
+                        <span class="stat-label">Quizzes</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section">
+                <h2 class="section-title">Quick Actions</h2>
+                <div class="action-grid">
+                    <a th:href="@{/teacher/lessons}" class="action-card">
+                        <span class="action-icon">📄</span>
+                        <span class="action-text">Upload Lesson</span>
+                    </a>
+                    <a th:href="@{/teacher/assignments}" class="action-card">
+                        <span class="action-icon">📝</span>
+                        <span class="action-text">Create Assignment</span>
+                    </a>
+                    <a th:href="@{/teacher/quizzes}" class="action-card">
+                        <span class="action-icon">❓</span>
+                        <span class="action-text">Create Quiz</span>
+                    </a>
+                    <a th:href="@{/teacher/announcements}" class="action-card">
+                        <span class="action-icon">📣</span>
+                        <span class="action-text">Class Announcement</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Announcements -->
+            <div class="section">
+                <h2 class="section-title">📢 School Announcements</h2>
+                <div th:if="${#lists.isEmpty(announcements)}" class="empty-state">
+                    <p>No announcements at this time.</p>
+                </div>
+                <div th:each="ann : ${announcements}" class="announcement-card">
+                    <div class="announcement-header">
+                        <div>
+                            <span class="announcement-type-badge"
+                                th:classappend="${ann.type == 'EXAM'} ? 'type-exam' : (${ann.type == 'HOLIDAY'} ? 'type-holiday' : 'type-general')"
+                                th:text="${ann.type}">GENERAL</span>
+                            <h3 th:text="${ann.title}" style="display:inline; margin-left:0.5rem;">Title</h3>
+                        </div>
+                    </div>
+                    <p th:text="${ann.content}">Content</p>
+                    <div class="announcement-meta">
+                        <span th:text="${#temporals.format(ann.createdAt, 'MMM dd, yyyy HH:mm')}">Date</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
