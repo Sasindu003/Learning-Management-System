@@ -1,0 +1,1212 @@
+/*
+ * style.css — Global stylesheet for the LMS application.
+ *
+ * DESIGN PHILOSOPHY:
+ *   - Clean, modern look with a professional color palette.
+ *   - Uses CSS variables for easy theming (change colors in one place).
+ *   - Mobile-friendly responsive layout.
+ *   - Subtle shadows, rounded corners, and smooth transitions.
+ */
+
+/* ========================================
+   CSS VARIABLES — Change these to retheme the whole app!
+   ======================================== */
+:root {
+    /* Primary colors */
+    --primary: #4f46e5;
+    /* Indigo — main brand color */
+    --primary-hover: #4338ca;
+    /* Darker indigo for hover states */
+    --primary-light: #eef2ff;
+    /* Very light indigo for backgrounds */
+
+    /* Neutral colors */
+    --bg-body: #f1f5f9;
+    /* Light gray page background */
+    --bg-card: #ffffff;
+    /* White card backgrounds */
+    --bg-navbar: #1e293b;
+    /* Dark slate navbar */
+    --text-primary: #1e293b;
+    /* Dark text */
+    --text-secondary: #64748b;
+    /* Lighter text for subtitles */
+    --text-light: #94a3b8;
+    /* Even lighter text */
+    --border: #e2e8f0;
+    /* Light border color */
+
+    /* Status colors */
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --warning: #f59e0b;
+
+    /* Stat card colors */
+    --blue: #3b82f6;
+    --blue-light: #eff6ff;
+    --green: #10b981;
+    --green-light: #ecfdf5;
+    --purple: #8b5cf6;
+    --purple-light: #f5f3ff;
+
+    /* Spacing & sizing */
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.05);
+    --transition: all 0.2s ease;
+}
+
+/* ========================================
+   RESET & BASE STYLES
+   ======================================== */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary);
+    transition: var(--transition);
+}
+
+a:hover {
+    color: var(--primary-hover);
+}
+
+/* ========================================
+   NAVBAR
+   ======================================== */
+.navbar {
+    background: var(--bg-navbar);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.navbar-brand {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.navbar-brand:hover {
+    color: #e0e7ff;
+}
+
+.brand-icon {
+    font-size: 1.5rem;
+}
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.nav-link {
+    color: #cbd5e1;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-greeting {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: inherit;
+    gap: 0.5rem;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.btn-full {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.btn-logout {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+}
+
+.btn-logout:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ffffff;
+    border-color: #ef4444;
+    transform: none;
+    box-shadow: none;
+}
+
+.logout-form {
+    display: inline;
+}
+
+/* ========================================
+   MAIN CONTENT AREA
+   ======================================== */
+.main-content {
+    padding: 2rem;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ========================================
+   PAGE HEADER
+   ======================================== */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+}
+
+/* ========================================
+   CARDS
+   ======================================== */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.form-card {
+    background: linear-gradient(135deg, #ffffff 0%, var(--primary-light) 100%);
+    border: 1px solid #c7d2fe;
+}
+
+/* ========================================
+   STATS GRID (Dashboard)
+   ======================================== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+}
+
+.stat-card-blue .stat-icon {
+    background: var(--blue-light);
+}
+
+.stat-card-green .stat-icon {
+    background: var(--green-light);
+}
+
+.stat-card-purple .stat-icon {
+    background: var(--purple-light);
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ========================================
+   ACTION GRID (Dashboard Quick Actions)
+   ======================================== */
+.section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.action-icon {
+    font-size: 2rem;
+}
+
+.action-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+/* ========================================
+   ANNOUNCEMENTS
+   ======================================== */
+.announcement-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary);
+    transition: var(--transition);
+}
+
+.announcement-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.announcement-card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.announcement-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.announcement-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* ========================================
+   FORMS
+   ======================================== */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: #ffffff;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.inline-form {
+    display: inline;
+}
+
+.file-input {
+    padding: 0.5rem !important;
+    cursor: pointer;
+}
+
+/* ========================================
+   DATA TABLES
+   ======================================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.data-table thead {
+    background: var(--primary-light);
+}
+
+.data-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.data-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========================================
+   ROLE BADGES
+   ======================================== */
+.role-badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-admin {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.role-teacher {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.role-student {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* ========================================
+   CONTENT CARDS (Student views)
+   ======================================== */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+}
+
+.content-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+}
+
+.content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.content-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.content-icon {
+    font-size: 1.5rem;
+}
+
+.content-subject {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.content-card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.content-description {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.content-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.due-date strong {
+    color: var(--danger);
+}
+
+/* ========================================
+   ALERTS
+   ======================================== */
+.alert {
+    padding: 0.85rem 1.25rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: var(--success-bg);
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.alert-error {
+    background: var(--danger-bg);
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* ========================================
+   EMPTY STATES
+   ======================================== */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.empty-state-lg {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+/* ========================================
+   LOGIN PAGE
+   ======================================== */
+.login-body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.login-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.login-header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+}
+
+.login-form {
+    margin-top: 1.5rem;
+}
+
+.login-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.login-footer-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+/* ========================================
+   STATUS BADGES (Active/Suspended)
+   ======================================== */
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-suspended {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+/* ========================================
+   ANNOUNCEMENT TYPE BADGES
+   ======================================== */
+.announcement-type-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.type-general {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.type-exam {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.type-holiday {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* ========================================
+   ACTION BUTTONS (Table actions)
+   ======================================== */
+.action-buttons {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-warning {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+.btn-warning:hover {
+    background: #d97706;
+}
+
+.btn-success {
+    background: var(--success);
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
+/* ========================================
+   SCORE BADGES
+   ======================================== */
+.score-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.score-pass {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.score-fail {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+/* ========================================
+   QUIZ STYLES
+   ======================================== */
+.quiz-question-card {
+    border-left: 4px solid var(--primary);
+}
+
+.quiz-question-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.quiz-question-text {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.quiz-option:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+.quiz-option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+.quiz-option-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.quiz-submit-area {
+    margin-top: 1.5rem;
+    max-width: 400px;
+}
+
+/* Quiz Questions (Teacher View) */
+.question-card {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.question-card:last-child {
+    border-bottom: none;
+}
+
+.question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.question-header span:first-of-type {
+    flex: 1;
+}
+
+.question-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-left: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.correct-option {
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* Quiz Result Page */
+.quiz-result-card {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.quiz-result-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.quiz-result-card h1 {
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.quiz-result-card h2 {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.quiz-result-subject {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.quiz-score-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 1.5rem 0 0.5rem;
+}
+
+.quiz-score-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.quiz-score-divider {
+    font-size: 2rem;
+    color: var(--text-light);
+}
+
+.quiz-score-total {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.quiz-score-percentage {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.quiz-result-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+/* ========================================
+   SUBMISSION STYLES
+   ======================================== */
+.submission-card {
+    border-left: 4px solid var(--blue);
+}
+
+.submission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.submission-header h3 {
+    font-size: 1rem;
+    margin-bottom: 0.15rem;
+}
+
+.submission-time {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.submission-text {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.submission-text h4 {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.submission-text p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.submission-file {
+    padding: 0.5rem 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* ========================================
+   CLASS ANNOUNCEMENT STYLING
+   ======================================== */
+.class-announcement {
+    border-left-color: var(--green);
+}
+
+/* ========================================
+   FORM ACTIONS (Edit pages)
+   ======================================== */
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.current-file {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+}
+
+.helper-text {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.quiz-completed {
+    margin-top: 0.5rem;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .navbar-links {
+        display: none;
+        /* Use a hamburger menu in production */
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .data-table {
+        font-size: 0.8rem;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.35rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .quiz-result-card {
+        padding: 2rem 1rem;
+    }
+
+    .quiz-score-number {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .login-card {
+        padding: 1.5rem;
+    }
+
+    .quiz-result-actions {
+        flex-direction: column;
+    }
+}
