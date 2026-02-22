@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- teacher/quizzes.html — Create and manage quizzes. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Manage Quizzes')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>📝 Manage Quizzes</h1>
+                <p class="page-subtitle">Create quizzes for your students</p>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <!-- Create Quiz Form -->
+            <div class="card form-card">
+                <h2 class="card-title">Create New Quiz</h2>
+                <form th:action="@{/teacher/quizzes}" method="post" class="inline-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Quiz Title</label>
+                            <input type="text" id="title" name="title" placeholder="e.g., Chapter 5 Quiz" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subjectId">Subject</label>
+                            <select id="subjectId" name="subjectId" required>
+                                <option value="">-- Select Subject --</option>
+                                <option th:each="subject : ${subjects}" th:value="${subject.id}"
+                                    th:text="${subject.name + ' (' + subject.grade.name + ')'}">Math</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Quiz</button>
+                </form>
+            </div>
+
+            <!-- Quizzes Table -->
+            <div class="card">
+                <h2 class="card-title">Your Quizzes</h2>
+                <div th:if="${#lists.isEmpty(quizzes)}" class="empty-state">
+                    <p>No quizzes created yet.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(quizzes)}" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Subject</th>
+                            <th>Questions</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="quiz, iterStat : ${quizzes}">
+                            <td th:text="${iterStat.count}">1</td>
+                            <td th:text="${quiz.title}">Chapter 5 Quiz</td>
+                            <td th:text="${quiz.subject.name}">Math</td>
+                            <td th:text="${quiz.questions.size()}">5</td>
+                            <td th:text="${#temporals.format(quiz.createdAt, 'MMM dd, yyyy')}">Feb 20</td>
+                            <td class="action-buttons">
+                                <a th:href="@{/teacher/quizzes/{id}/questions(id=${quiz.id})}"
+                                    class="btn btn-primary btn-sm">Questions</a>
+                                <a th:href="@{/teacher/quizzes/{id}/results(id=${quiz.id})}"
+                                    class="btn btn-secondary btn-sm">Results</a>
+                                <form th:action="@{/teacher/quizzes/delete/{id}(id=${quiz.id})}" method="post"
+                                    class="inline-form">
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Delete this quiz and all its questions?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
