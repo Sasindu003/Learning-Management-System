@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+  fragments/navbar.html — Shared navigation bar.
+  Updated for Sprint 1: Added quiz and announcements links for teachers and students.
+  Uses Spring Security Thymeleaf extras to show role-specific links.
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<nav th:fragment="navbar" class="navbar">
+    <div class="navbar-container">
+        <!-- Brand -->
+        <a th:href="@{/dashboard}" class="navbar-brand">
+            <span class="brand-icon">🎓</span> LMS
+        </a>
+
+        <!-- Navigation Links (role-based) -->
+        <div class="navbar-links">
+            <!-- ADMIN Links -->
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/dashboard}" class="nav-link">Dashboard</a>
+                <a th:href="@{/admin/grades}" class="nav-link">Grades</a>
+                <a th:href="@{/admin/subjects}" class="nav-link">Subjects</a>
+                <a th:href="@{/admin/announcements}" class="nav-link">Announcements</a>
+                <a th:href="@{/admin/users}" class="nav-link">Users</a>
+            </div>
+
+            <!-- TEACHER Links -->
+            <div sec:authorize="hasRole('TEACHER')">
+                <a th:href="@{/teacher/dashboard}" class="nav-link">Dashboard</a>
+                <a th:href="@{/teacher/lessons}" class="nav-link">Lessons</a>
+                <a th:href="@{/teacher/assignments}" class="nav-link">Assignments</a>
+                <a th:href="@{/teacher/quizzes}" class="nav-link">Quizzes</a>
+                <a th:href="@{/teacher/announcements}" class="nav-link">Announcements</a>
+            </div>
+
+            <!-- STUDENT Links -->
+            <div sec:authorize="hasRole('STUDENT')">
+                <a th:href="@{/student/dashboard}" class="nav-link">Dashboard</a>
+                <a th:href="@{/student/lessons}" class="nav-link">Lessons</a>
+                <a th:href="@{/student/assignments}" class="nav-link">Assignments</a>
+                <a th:href="@{/student/quizzes}" class="nav-link">Quizzes</a>
+            </div>
+        </div>
+
+        <!-- User Info & Logout -->
+        <div class="navbar-right">
+            <span class="user-greeting" sec:authentication="name">username</span>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="btn btn-logout">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+</html>
