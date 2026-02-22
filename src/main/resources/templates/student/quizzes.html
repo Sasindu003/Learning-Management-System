@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- student/quizzes.html — Browse available quizzes. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Quizzes')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>📝 Quizzes</h1>
+                <p class="page-subtitle">Take quizzes created by your teachers</p>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <div th:if="${#lists.isEmpty(quizzes)}" class="empty-state-lg">
+                <span class="empty-icon">📭</span>
+                <p>No quizzes available yet. Check back later!</p>
+            </div>
+
+            <div class="content-grid">
+                <div th:each="quiz : ${quizzes}" class="content-card">
+                    <div class="content-card-header">
+                        <span class="content-icon">📝</span>
+                        <span class="content-subject" th:text="${quiz.subject.name}">Math</span>
+                    </div>
+                    <h3 th:text="${quiz.title}">Chapter 5 Quiz</h3>
+                    <div class="content-meta">
+                        <span>❓ <span th:text="${quiz.questions.size()}">5</span> questions</span>
+                        <span>👤 <span th:text="${quiz.createdBy?.fullName}">Teacher</span></span>
+                    </div>
+                    <div style="margin-top:1rem;">
+                        <!-- Already attempted -->
+                        <div th:if="${attemptMap.containsKey(quiz.id)}" class="quiz-completed">
+                            <span class="score-badge score-pass">
+                                ✅ Score:
+                                <span th:text="${attemptMap.get(quiz.id).score}">3</span> /
+                                <span th:text="${attemptMap.get(quiz.id).totalQuestions}">5</span>
+                            </span>
+                        </div>
+                        <!-- Not yet attempted -->
+                        <a th:unless="${attemptMap.containsKey(quiz.id)}"
+                            th:href="@{/student/quizzes/{id}(id=${quiz.id})}" class="btn btn-primary btn-sm">Take Quiz
+                            →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

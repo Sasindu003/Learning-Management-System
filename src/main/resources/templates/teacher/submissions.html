@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!-- teacher/submissions.html — View student submissions for a specific assignment. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Student Submissions')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>📋 Student Submissions</h1>
+                <p class="page-subtitle">
+                    Submissions for: <strong th:text="${assignment.title}">Homework</strong>
+                    (<span th:text="${assignment.subject.name}">Math</span>)
+                </p>
+            </div>
+
+            <a th:href="@{/teacher/assignments}" class="btn btn-secondary" style="margin-bottom:1.5rem;">
+                ← Back to Assignments
+            </a>
+
+            <!-- Submissions List -->
+            <div th:if="${#lists.isEmpty(submissions)}" class="empty-state-lg">
+                <span class="empty-icon">📭</span>
+                <p>No submissions received yet.</p>
+            </div>
+
+            <div th:each="submission : ${submissions}" class="card submission-card">
+                <div class="submission-header">
+                    <div>
+                        <h3>👤 <span th:text="${submission.student.fullName}">John Smith</span></h3>
+                        <span class="submission-time"
+                            th:text="${#temporals.format(submission.submittedAt, 'MMM dd, yyyy HH:mm')}">
+                            Feb 20, 2026 14:30
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Text Answer -->
+                <div th:if="${submission.answerText != null and !submission.answerText.isEmpty()}"
+                    class="submission-text">
+                    <h4>Written Answer:</h4>
+                    <p th:text="${submission.answerText}">Student's answer text here...</p>
+                </div>
+
+                <!-- File Attachment -->
+                <div th:if="${submission.fileName != null}" class="submission-file">
+                    <span>📎 Attached File: <strong th:text="${submission.fileName}">report.pdf</strong></span>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

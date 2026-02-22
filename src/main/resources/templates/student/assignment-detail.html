@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!-- student/assignment-detail.html — View a specific assignment and submit answers. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Assignment Detail')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <a th:href="@{/student/assignments}" class="btn btn-secondary" style="margin-bottom:1.5rem;">
+                ← Back to Assignments
+            </a>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <!-- Assignment Info -->
+            <div class="card">
+                <div class="content-card-header">
+                    <span class="content-icon">📝</span>
+                    <span class="content-subject" th:text="${assignment.subject.name}">Math</span>
+                </div>
+                <h2 th:text="${assignment.title}">Homework: Chapter 5</h2>
+                <p class="content-description" th:text="${assignment.description}">
+                    Complete problems 1-20 from textbook.
+                </p>
+                <div class="content-meta">
+                    <span class="due-date">📅 Due: <strong th:text="${assignment.dueDate}">2026-02-28</strong></span>
+                    <span>👤 <span th:text="${assignment.createdBy?.fullName}">Teacher</span></span>
+                </div>
+            </div>
+
+            <!-- Already Submitted -->
+            <div th:if="${alreadySubmitted}" class="card">
+                <h2 class="card-title" style="color: var(--success); border-bottom-color: var(--success-bg);">
+                    ✅ Your Submission
+                </h2>
+                <div th:if="${submission.answerText != null and !submission.answerText.isEmpty()}">
+                    <h4>Written Answer:</h4>
+                    <p th:text="${submission.answerText}">Your answer text.</p>
+                </div>
+                <div th:if="${submission.fileName != null}" style="margin-top:0.75rem;">
+                    <span>📎 Uploaded: <strong th:text="${submission.fileName}">doc.pdf</strong></span>
+                </div>
+                <p class="content-meta" style="margin-top:1rem;">
+                    Submitted on <span th:text="${#temporals.format(submission.submittedAt, 'MMM dd, yyyy HH:mm')}">Feb
+                        20</span>
+                </p>
+            </div>
+
+            <!-- Submission Form (only if not yet submitted) -->
+            <div th:unless="${alreadySubmitted}" class="card form-card">
+                <h2 class="card-title">Submit Your Answer</h2>
+                <form th:action="@{/student/assignments/{id}/submit(id=${assignment.id})}" method="post"
+                    enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="answerText">Written Answer (optional)</label>
+                        <textarea id="answerText" name="answerText" rows="5"
+                            placeholder="Type your answer here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="file">Upload File (optional — PDF, DOC, etc.)</label>
+                        <input type="file" id="file" name="file" class="file-input">
+                    </div>
+                    <p class="helper-text">You can submit a written answer, a file, or both.</p>
+                    <button type="submit" class="btn btn-primary">Submit Assignment</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- student/quiz-result.html — Shows the student's quiz score after submission. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Quiz Result')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="quiz-result-card">
+                <div class="quiz-result-icon">
+                    <span
+                        th:if="${attempt.totalQuestions > 0 and attempt.score * 100 / attempt.totalQuestions >= 50}">🎉</span>
+                    <span
+                        th:unless="${attempt.totalQuestions > 0 and attempt.score * 100 / attempt.totalQuestions >= 50}">😔</span>
+                </div>
+                <h1>Quiz Complete!</h1>
+                <h2 th:text="${quiz.title}">Chapter 5 Quiz</h2>
+                <p class="quiz-result-subject" th:text="${quiz.subject.name}">Math</p>
+
+                <div class="quiz-score-display">
+                    <span class="quiz-score-number" th:text="${attempt.score}">3</span>
+                    <span class="quiz-score-divider">/</span>
+                    <span class="quiz-score-total" th:text="${attempt.totalQuestions}">5</span>
+                </div>
+
+                <p class="quiz-score-percentage"
+                    th:text="${attempt.totalQuestions > 0 ? (attempt.score * 100 / attempt.totalQuestions) + '% correct' : 'N/A'}">
+                    60% correct
+                </p>
+
+                <div class="quiz-result-actions">
+                    <a th:href="@{/student/quizzes}" class="btn btn-primary">Back to Quizzes</a>
+                    <a th:href="@{/student/dashboard}" class="btn btn-secondary">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<!-- teacher/quiz-results.html — View student quiz results. -->
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Quiz Results')}"></head>
+
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>📊 Quiz Results</h1>
+                <p class="page-subtitle">
+                    Results for: <strong th:text="${quiz.title}">Chapter 5 Quiz</strong>
+                    (<span th:text="${quiz.subject.name}">Math</span>)
+                </p>
+            </div>
+
+            <a th:href="@{/teacher/quizzes}" class="btn btn-secondary" style="margin-bottom:1.5rem;">
+                ← Back to Quizzes
+            </a>
+
+            <div class="card">
+                <h2 class="card-title">Student Attempts</h2>
+                <div th:if="${#lists.isEmpty(attempts)}" class="empty-state">
+                    <p>No students have attempted this quiz yet.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(attempts)}" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student Name</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Attempted At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="attempt, iterStat : ${attempts}">
+                            <td th:text="${iterStat.count}">1</td>
+                            <td th:text="${attempt.student.fullName}">John Smith</td>
+                            <td>
+                                <span th:text="${attempt.score}">3</span> /
+                                <span th:text="${attempt.totalQuestions}">5</span>
+                            </td>
+                            <td>
+                                <span class="score-badge"
+                                    th:classappend="${attempt.totalQuestions > 0 ? (attempt.score * 100 / attempt.totalQuestions >= 50 ? 'score-pass' : 'score-fail') : ''}"
+                                    th:text="${attempt.totalQuestions > 0 ? (attempt.score * 100 / attempt.totalQuestions) + '%' : 'N/A'}">
+                                    60%
+                                </span>
+                            </td>
+                            <td th:text="${#temporals.format(attempt.attemptedAt, 'MMM dd, yyyy HH:mm')}">
+                                Feb 20, 2026
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
