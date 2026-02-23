@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 /**
  * QuizAttempt entity — records a student's attempt at a quiz.
+ * (Updated to trigger re-index)
  *
  * Stores the score and total questions so we can show results like "3 out of
  * 5".

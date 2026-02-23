@@ -8,6 +8,7 @@ import java.util.List;
 
 /**
  * Quiz entity — represents a quiz created by a teacher for a specific subject.
+ * (Updated to trigger re-index)
  *
  * A quiz contains multiple QuizQuestion objects.
  * We use @ToString.Exclude and @EqualsAndHashCode.Exclude on the 'questions'

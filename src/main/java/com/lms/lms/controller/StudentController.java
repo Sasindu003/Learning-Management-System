@@ -1,7 +1,18 @@
 package com.lms.lms.controller;
 
-import com.lms.lms.entity.*;
-import com.lms.lms.service.*;
+import com.lms.lms.entity.Assignment;
+import com.lms.lms.entity.Quiz;
+import com.lms.lms.entity.QuizAttempt;
+import com.lms.lms.entity.QuizQuestion;
+import com.lms.lms.entity.Submission;
+import com.lms.lms.entity.User;
+import com.lms.lms.service.AssignmentService;
+import com.lms.lms.service.ClassAnnouncementService;
+import com.lms.lms.service.LessonNoteService;
+import com.lms.lms.service.QuizService;
+import com.lms.lms.service.SubjectService;
+import com.lms.lms.service.SubmissionService;
+import com.lms.lms.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

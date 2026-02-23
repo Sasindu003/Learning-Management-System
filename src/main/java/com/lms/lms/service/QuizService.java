@@ -1,7 +1,12 @@
 package com.lms.lms.service;
 
-import com.lms.lms.entity.*;
-import com.lms.lms.repository.*;
+import com.lms.lms.entity.Quiz;
+import com.lms.lms.entity.QuizAttempt;
+import com.lms.lms.entity.QuizQuestion;
+import com.lms.lms.entity.User;
+import com.lms.lms.repository.QuizAttemptRepository;
+import com.lms.lms.repository.QuizQuestionRepository;
+import com.lms.lms.repository.QuizRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -5,6 +5,7 @@ import lombok.*;
 
 /**
  * QuizQuestion entity — a single multiple-choice question within a quiz.
+ * (Updated to trigger re-index)
  *
  * Simple model: 4 options (A, B, C, D) and one correct answer.
  * The correctOption field stores which option is right ("A", "B", "C", or "D").

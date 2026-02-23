@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * QuizQuestionRepository — handles database operations for quiz questions.
+ * (Updated to trigger re-index)
  */
 @Repository
 public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Long> {

@@ -11,6 +11,7 @@ import java.util.Optional;
 
 /**
  * QuizAttemptRepository — handles database operations for quiz attempts.
+ * (Updated to trigger re-index)
  */
 @Repository
 public interface QuizAttemptRepository extends JpaRepository<QuizAttempt, Long> {
