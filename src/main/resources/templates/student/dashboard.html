@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Student Dashboard')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📖</div>
+                    <div class="stat-value" th:text="${#lists.size(courses)}">0</div>
+                    <div class="stat-label">My Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value" th:text="${#lists.size(pendingAssignments)}">0</div>
+                    <div class="stat-label">Pending Assignments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❓</div>
+                    <div class="stat-value" th:text="${#lists.size(availableQuizzes)}">0</div>
+                    <div class="stat-label">Available Quizzes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-value" th:text="${currentUser.grade != null} ? ${currentUser.grade.name} : 'N/A'">
+                        Grade</div>
+                    <div class="stat-label">My Grade</div>
+                </div>
+            </div>
+
+            <div class="data-grid">
+                <!-- Pending Assignments -->
+                <div class="glass-card">
+                    <h3 class="mb-2">📝 Pending Assignments</h3>
+                    <div th:each="a : ${pendingAssignments}" class="announcement-card">
+                        <div class="flex-between">
+                            <h5 th:text="${a.title}">Assignment</h5>
+                            <a th:href="@{/student/assignments/{id}/submit(id=${a.id})}"
+                                class="btn btn-primary btn-sm">Submit</a>
+                        </div>
+                        <div class="meta">Due: <span
+                                th:text="${#temporals.format(a.dueDate, 'MMM dd, yyyy')}">Date</span>
+                            · <span th:text="${a.course.subject.name}">Subject</span></div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(pendingAssignments)}" class="empty-state">
+                        <p>All caught up! 🎉</p>
+                    </div>
+                </div>
+
+                <!-- Available Quizzes -->
+                <div class="glass-card">
+                    <h3 class="mb-2">❓ Available Quizzes</h3>
+                    <div th:each="q : ${availableQuizzes}" class="announcement-card">
+                        <div class="flex-between">
+                            <h5 th:text="${q.title}">Quiz</h5>
+                            <a th:href="@{/student/quizzes/{id}/take(id=${q.id})}" class="btn btn-warning btn-sm">Take
+                                Quiz</a>
+                        </div>
+                        <div class="meta"><span th:text="${q.course.subject.name}">Subject</span>
+                            · <span th:text="${q.durationMinutes} + ' min'">30 min</span>
+                            · <span th:text="${q.totalMarks} + ' marks'">100 marks</span></div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(availableQuizzes)}" class="empty-state">
+                        <p>No quizzes available</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses -->
+            <div class="glass-card mt-3">
+                <div class="flex-between mb-2">
+                    <h3>📖 My Courses</h3>
+                    <a href="/student/courses" class="btn btn-secondary btn-sm">View All</a>
+                </div>
+                <div class="card-grid">
+                    <div th:each="c : ${courses}" class="content-card">
+                        <h4 th:text="${c.title}">Course</h4>
+                        <p><span class="badge badge-primary" th:text="${c.subject.name}">Subject</span>
+                            · By <span th:text="${c.teacher.fullName}">Teacher</span></p>
+                        <div class="card-footer">
+                            <a th:href="@{/student/courses/{id}(id=${c.id})}" class="btn btn-info btn-sm">View →</a>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#lists.isEmpty(courses)}" class="empty-state">
+                    <p>No courses assigned to your grade</p>
+                </div>
+            </div>
+
+            <!-- Announcements -->
+            <div class="glass-card mt-3">
+                <h3 class="mb-2">📢 Announcements</h3>
+                <div th:each="a : ${recentAnnouncements}" class="announcement-card">
+                    <h5 th:text="${a.title}">Title</h5>
+                    <p th:text="${#strings.abbreviate(a.content, 100)}">Content</p>
+                    <div class="meta"><span th:text="${#temporals.format(a.createdAt, 'MMM dd, yyyy')}">Date</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

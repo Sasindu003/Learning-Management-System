@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Academic Terms')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="data-grid">
+                <div class="glass-card">
+                    <h3 class="mb-2">Add Term</h3>
+                    <form th:action="@{/admin/terms/save}" method="post" data-validate>
+                        <div class="form-group"><label class="form-label">Term Name *</label>
+                            <input type="text" name="name" class="form-control" required
+                                placeholder="e.g. Term 1 - 2026">
+                        </div>
+                        <div class="data-grid">
+                            <div class="form-group"><label class="form-label">Start Date *</label>
+                                <input type="date" name="startDate" class="form-control" required>
+                            </div>
+                            <div class="form-group"><label class="form-label">End Date *</label>
+                                <input type="date" name="endDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label
+                                style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text-secondary)">
+                                <input type="checkbox" name="active" value="true"> Set as Active Term
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Term</button>
+                    </form>
+                </div>
+                <div class="glass-card">
+                    <h3 class="mb-2">All Terms</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="t : ${terms}">
+                                    <td><strong th:text="${t.name}">Term</strong></td>
+                                    <td th:text="${#temporals.format(t.startDate, 'MMM dd, yyyy')}">Start</td>
+                                    <td th:text="${#temporals.format(t.endDate, 'MMM dd, yyyy')}">End</td>
+                                    <td><span class="badge"
+                                            th:classappend="${t.active} ? 'badge-success' : 'badge-info'"
+                                            th:text="${t.active} ? 'Active' : 'Inactive'">Status</span></td>
+                                    <td><a th:href="@{/admin/terms/delete/{id}(id=${t.id})}"
+                                            class="btn btn-danger btn-sm" data-confirm="Delete?">Delete</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

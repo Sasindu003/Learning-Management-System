@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Mark Attendance')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="glass-card mb-3">
+                <h3 th:text="${course.title}">Course</h3>
+                <p class="text-muted"><span class="badge badge-primary" th:text="${course.subject.name}">Subject</span>
+                    <span class="badge badge-info" th:text="${course.grade.name}">Grade</span>
+                    · Date: <strong th:text="${#temporals.format(today, 'EEEE, MMM dd yyyy')}">Today</strong>
+                </p>
+            </div>
+            <div class="glass-card">
+                <form th:action="@{/teacher/attendance/save}" method="post">
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <input type="hidden" name="date" th:value="${today}">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>ID</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Late</th>
+                                    <th>Excused</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="s : ${students}">
+                                    <td><strong th:text="${s.fullName}">Name</strong></td>
+                                    <td><span class="badge badge-info" th:text="${s.primaryId}">ST001</span></td>
+                                    <td><label class="option-label" style="margin:0;padding:6px 12px;border:none">
+                                            <input type="radio" th:name="'status_' + ${s.id}" value="PRESENT" checked>
+                                            Present</label></td>
+                                    <td><label class="option-label" style="margin:0;padding:6px 12px;border:none">
+                                            <input type="radio" th:name="'status_' + ${s.id}" value="ABSENT">
+                                            Absent</label></td>
+                                    <td><label class="option-label" style="margin:0;padding:6px 12px;border:none">
+                                            <input type="radio" th:name="'status_' + ${s.id}" value="LATE"> Late</label>
+                                    </td>
+                                    <td><label class="option-label" style="margin:0;padding:6px 12px;border:none">
+                                            <input type="radio" th:name="'status_' + ${s.id}" value="EXCUSED">
+                                            Excused</label></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${#lists.isEmpty(students)}" class="empty-state">
+                        <p>No students in this grade</p>
+                    </div>
+                    <button th:unless="${#lists.isEmpty(students)}" type="submit" class="btn btn-success mt-2">Save
+                        Attendance</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

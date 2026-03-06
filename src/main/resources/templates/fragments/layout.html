@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<body>
+
+    <!-- ===== SIDEBAR FRAGMENT ===== -->
+    <nav th:fragment="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo">E</div>
+            <div>
+                <h1>EduFlow</h1>
+                <small>Learning Management</small>
+            </div>
+        </div>
+
+        <div class="sidebar-nav">
+            <!-- ADMIN NAV -->
+            <div sec:authorize="hasRole('ADMIN')">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="/admin/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+                    <a href="/admin/users" class="nav-link"><span class="icon">👥</span> Users</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Academic</div>
+                    <a href="/admin/grades" class="nav-link"><span class="icon">🎓</span> Grades</a>
+                    <a href="/admin/subjects" class="nav-link"><span class="icon">📚</span> Subjects</a>
+                    <a href="/admin/terms" class="nav-link"><span class="icon">📅</span> Terms</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Communication</div>
+                    <a href="/admin/announcements" class="nav-link"><span class="icon">📢</span> Announcements</a>
+                    <a href="/admin/events" class="nav-link"><span class="icon">🗓️</span> Events</a>
+                    <a href="/messages" class="nav-link"><span class="icon">✉️</span> Messages
+                        <span th:if="${unreadMessages > 0}" class="badge badge-danger"
+                            th:text="${unreadMessages}"></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- TEACHER NAV -->
+            <div sec:authorize="hasRole('TEACHER')">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a href="/teacher/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+                    <a href="/teacher/courses" class="nav-link"><span class="icon">📖</span> My Courses</a>
+                    <a href="/teacher/students" class="nav-link"><span class="icon">👥</span> My Students</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Communication</div>
+                    <a href="/messages" class="nav-link"><span class="icon">✉️</span> Messages
+                        <span th:if="${unreadMessages > 0}" class="badge badge-danger"
+                            th:text="${unreadMessages}"></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- STUDENT NAV -->
+            <div sec:authorize="hasRole('STUDENT')">
+                <div class="nav-section">
+                    <div class="nav-section-title">Learning</div>
+                    <a href="/student/dashboard" class="nav-link"><span class="icon">📊</span> Dashboard</a>
+                    <a href="/student/courses" class="nav-link"><span class="icon">📖</span> My Courses</a>
+                    <a href="/student/assignments" class="nav-link"><span class="icon">📝</span> Assignments</a>
+                    <a href="/student/quizzes" class="nav-link"><span class="icon">❓</span> Quizzes</a>
+                    <a href="/student/grades" class="nav-link"><span class="icon">📊</span> My Grades</a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Communication</div>
+                    <a href="/messages" class="nav-link"><span class="icon">✉️</span> Messages
+                        <span th:if="${unreadMessages > 0}" class="badge badge-danger"
+                            th:text="${unreadMessages}"></span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Common Links -->
+            <div class="nav-section">
+                <div class="nav-section-title">Account</div>
+                <a href="/notifications" class="nav-link"><span class="icon">🔔</span> Notifications
+                    <span th:if="${unreadNotifications > 0}" class="badge badge-danger"
+                        th:text="${unreadNotifications}"></span>
+                </a>
+                <a href="/profile" class="nav-link"><span class="icon">👤</span> Profile</a>
+                <form th:action="@{/logout}" method="post" style="margin:0">
+                    <button type="submit" class="nav-link"
+                        style="background:none;border:none;cursor:pointer;width:100%;text-align:left;font:inherit;color:inherit;padding:inherit"><span
+                            class="icon">🚪</span> Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-card" th:if="${currentUser != null}">
+                <div class="user-avatar" th:text="${currentUser.fullName.substring(0,1)}">A</div>
+                <div class="user-info">
+                    <div class="name" th:text="${currentUser.fullName}">User</div>
+                    <div class="role" th:text="${currentUser.role}">Role</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== TOPBAR FRAGMENT ===== -->
+    <div th:fragment="topbar(title)" class="topbar">
+        <div>
+            <button id="menu-toggle" class="btn btn-secondary btn-sm d-none" style="margin-right:12px">☰</button>
+            <h2 th:text="${title}">Page Title</h2>
+        </div>
+        <div class="topbar-actions">
+            <a href="/notifications" class="notification-bell">
+                🔔
+                <span id="notif-count" class="count" th:if="${unreadNotifications > 0}"
+                    th:text="${unreadNotifications}">0</span>
+            </a>
+            <a href="/messages" class="notification-bell">
+                ✉️
+                <span id="msg-count" class="count" th:if="${unreadMessages > 0}" th:text="${unreadMessages}">0</span>
+            </a>
+            <a href="/profile" class="btn btn-secondary btn-sm">
+                <span th:text="${currentUser?.fullName}">User</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ===== ALERTS FRAGMENT ===== -->
+    <div th:fragment="alerts">
+        <div th:if="${success}" class="alert alert-success">✅ <span th:text="${success}"></span></div>
+        <div th:if="${error}" class="alert alert-danger">❌ <span th:text="${error}"></span></div>
+        <div th:if="${warning}" class="alert alert-warning">⚠️ <span th:text="${warning}"></span></div>
+        <div th:if="${info}" class="alert alert-info">ℹ️ <span th:text="${info}"></span></div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Assignment — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Create Assignment')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="glass-card" style="max-width:640px">
+                <p class="mb-2"><span class="badge badge-primary" th:text="${course.title}">Course</span></p>
+                <form th:action="@{/teacher/assignments/save}" method="post" enctype="multipart/form-data"
+                    data-validate>
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <div class="form-group"><label class="form-label">Title *</label>
+                        <input type="text" name="title" class="form-control" required placeholder="Assignment title">
+                    </div>
+                    <div class="form-group"><label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="4"
+                            placeholder="Instructions for students"></textarea>
+                    </div>
+                    <div class="data-grid">
+                        <div class="form-group"><label class="form-label">Due Date *</label>
+                            <input type="date" name="dueDate" class="form-control" required>
+                        </div>
+                        <div class="form-group"><label class="form-label">Max Marks</label>
+                            <input type="number" name="maxMarks" class="form-control" value="100" min="1">
+                        </div>
+                    </div>
+                    <div class="form-group"><label class="form-label">Attachment (optional)</label>
+                        <input type="file" name="file" class="form-control">
+                    </div>
+                    <div class="inline-flex"><button type="submit" class="btn btn-primary">Create Assignment</button>
+                        <a th:href="@{/teacher/courses/{id}(id=${course.id})}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

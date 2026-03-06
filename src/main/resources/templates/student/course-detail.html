@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar(${course.title})}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="glass-card mb-3">
+                <p><span class="badge badge-primary" th:text="${course.subject.name}">Subject</span>
+                    <span class="badge badge-info" th:text="${course.grade.name}">Grade</span>
+                </p>
+                <p th:text="${course.description}" class="text-muted">Description</p>
+                <p style="font-size:13px">Instructor: <strong th:text="${course.teacher.fullName}">Teacher</strong></p>
+            </div>
+            <div class="data-grid">
+                <div class="glass-card">
+                    <h3 class="mb-2">📄 Course Materials</h3>
+                    <div th:each="m : ${materials}" class="announcement-card">
+                        <h5 th:text="${m.title}">Title</h5>
+                        <p class="text-muted" style="font-size:12px"
+                            th:text="${m.fileName + ' · ' + #temporals.format(m.uploadedAt, 'MMM dd')}">file</p>
+                    </div>
+                    <div th:if="${#lists.isEmpty(materials)}" class="empty-state">
+                        <p>No materials yet</p>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3 class="mb-2">📝 Assignments</h3>
+                    <div th:each="a : ${assignments}" class="announcement-card">
+                        <div class="flex-between">
+                            <h5 th:text="${a.title}">Title</h5>
+                            <div>
+                                <span th:if="${submitted[a.id]}" class="badge badge-success">Submitted ✓</span>
+                                <a th:unless="${submitted[a.id]}"
+                                    th:href="@{/student/assignments/{id}/submit(id=${a.id})}"
+                                    class="btn btn-primary btn-sm">Submit</a>
+                            </div>
+                        </div>
+                        <div class="meta">Due: <span
+                                th:text="${#temporals.format(a.dueDate, 'MMM dd, yyyy')}">Date</span>
+                            · <span th:text="${a.maxMarks} + ' marks'">100</span>
+                            <span th:if="${a.overdue}" class="badge badge-danger">Overdue</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(assignments)}" class="empty-state">
+                        <p>No assignments</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card mt-3">
+                <h3 class="mb-2">❓ Exams & Quizzes</h3>
+                <div th:each="e : ${exams}" class="announcement-card" th:if="${e.published}">
+                    <div class="flex-between">
+                        <h5 th:text="${e.title}">Exam</h5>
+                        <a th:href="@{/student/quizzes/{id}/take(id=${e.id})}" class="btn btn-warning btn-sm">Take
+                            Quiz</a>
+                    </div>
+                    <div class="meta"><span class="badge badge-primary" th:text="${e.type}">QUIZ</span>
+                        · <span th:text="${e.durationMinutes} + ' min'">30</span>
+                        · <span th:text="${e.totalMarks} + ' marks'">100</span></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

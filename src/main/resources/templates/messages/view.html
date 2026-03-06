@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('View Message')}"></div>
+            <div class="glass-card" style="max-width:720px">
+                <div class="flex-between mb-2">
+                    <h3 th:text="${message.subject}">Subject</h3>
+                    <a th:href="@{/messages/{id}/delete(id=${message.id})}" class="btn btn-danger btn-sm"
+                        data-confirm="Delete this message?">Delete</a>
+                </div>
+                <div class="meta mb-2">
+                    From: <strong th:text="${message.sender.fullName}">Sender</strong>
+                    · To: <strong th:text="${message.receiver.fullName}">Receiver</strong>
+                    · <span th:text="${#temporals.format(message.sentAt, 'MMM dd, yyyy HH:mm')}">Date</span>
+                </div>
+                <div
+                    style="padding:20px;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid var(--glass-border);white-space:pre-line;font-size:14px;line-height:1.7;color:var(--text-secondary)">
+                    <span th:text="${message.content}">Content</span>
+                </div>
+                <div class="mt-2"><a href="/messages" class="btn btn-secondary">← Back to Inbox</a></div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

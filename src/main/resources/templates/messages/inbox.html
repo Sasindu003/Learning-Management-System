@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Messages')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="flex-between mb-3">
+                <div class="inline-flex">
+                    <a href="/messages" class="btn"
+                        th:classappend="${tab == 'inbox'} ? 'btn-primary' : 'btn-secondary'">📥 Inbox</a>
+                    <a href="/messages/sent" class="btn"
+                        th:classappend="${tab == 'sent'} ? 'btn-primary' : 'btn-secondary'">📤 Sent</a>
+                </div>
+                <a href="/messages/compose" class="btn btn-success">✉️ Compose</a>
+            </div>
+            <div class="glass-card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th th:text="${tab == 'inbox'} ? 'From' : 'To'">From</th>
+                                <th>Subject</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="m : ${messages}"
+                                th:style="${!m.read && tab == 'inbox'} ? 'background:rgba(99,102,241,0.08)'">
+                                <td th:if="${tab == 'inbox'}"><strong th:text="${m.sender.fullName}">Sender</strong>
+                                </td>
+                                <td th:unless="${tab == 'inbox'}"><strong
+                                        th:text="${m.receiver.fullName}">Receiver</strong></td>
+                                <td><a th:href="@{/messages/{id}(id=${m.id})}"
+                                        style="color:var(--primary-light);text-decoration:none"
+                                        th:text="${m.subject}">Subject</a></td>
+                                <td th:text="${#temporals.format(m.sentAt, 'MMM dd HH:mm')}">Date</td>
+                                <td><span th:if="${!m.read && tab == 'inbox'}" class="badge badge-warning">New</span>
+                                    <span th:if="${m.read || tab != 'inbox'}" class="badge badge-info">Read</span>
+                                </td>
+                                <td><a th:href="@{/messages/{id}(id=${m.id})}" class="btn btn-info btn-sm">View</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${#lists.isEmpty(messages)}" class="empty-state">
+                    <div class="icon">✉️</div>
+                    <h4>No messages</h4>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

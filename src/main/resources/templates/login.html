@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduFlow LMS — Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="logo-icon">E</div>
+                <h2>EduFlow LMS</h2>
+                <p class="subtitle">Sign in to your learning portal</p>
+            </div>
+
+            <div th:if="${param.error}" class="alert alert-danger">
+                ❌ Invalid username or password
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success">
+                ✅ You have been logged out successfully
+            </div>
+
+            <form th:action="@{/login}" method="post" data-validate>
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                        placeholder="Enter your username" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" required>
+                </div>
+                <div class="form-group" style="display:flex;align-items:center;gap:8px">
+                    <input type="checkbox" id="remember-me" name="remember-me">
+                    <label for="remember-me" style="font-size:13px;color:var(--text-secondary)">Remember me</label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Sign In →</button>
+            </form>
+
+            <div style="text-align:center;margin-top:24px">
+                <p class="text-muted" style="font-size:12px">Default: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

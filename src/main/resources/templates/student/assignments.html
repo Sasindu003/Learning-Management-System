@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('My Assignments')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="glass-card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Assignment</th>
+                                <th>Course</th>
+                                <th>Due Date</th>
+                                <th>Max Marks</th>
+                                <th>Status</th>
+                                <th>Marks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="a : ${assignments}">
+                                <td><strong th:text="${a.title}">Title</strong></td>
+                                <td><span class="badge badge-primary" th:text="${a.course.subject.name}">Subject</span>
+                                </td>
+                                <td th:text="${#temporals.format(a.dueDate, 'MMM dd, yyyy')}">Date</td>
+                                <td th:text="${a.maxMarks}">100</td>
+                                <td th:if="${submitted[a.id]}"><span class="badge badge-success">Submitted</span></td>
+                                <td th:unless="${submitted[a.id]}">
+                                    <span th:if="${a.overdue}" class="badge badge-danger">Overdue</span>
+                                    <span th:unless="${a.overdue}" class="badge badge-warning">Pending</span>
+                                </td>
+                                <td th:if="${submissions[a.id] != null && submissions[a.id].graded}">
+                                    <span class="badge badge-info"
+                                        th:text="${submissions[a.id].marks} + '/' + ${a.maxMarks}">Marks</span>
+                                </td>
+                                <td th:unless="${submissions[a.id] != null && submissions[a.id].graded}">-</td>
+                                <td th:if="${!submitted[a.id] && !a.overdue}"><a
+                                        th:href="@{/student/assignments/{id}/submit(id=${a.id})}"
+                                        class="btn btn-primary btn-sm">Submit</a></td>
+                                <td th:if="${submitted[a.id] || a.overdue}">—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${#lists.isEmpty(assignments)}" class="empty-state">
+                    <p>No assignments</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
