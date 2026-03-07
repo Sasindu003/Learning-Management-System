@@ -1,6 +1,6 @@
 <div align="center">
 
-![EduFlow Banner](banner.png)
+![EduFlow Banner](banner.jpeg)
 
 # 🎓 EduFlow Learning Management System
 
