@@ -1,9 +1,11 @@
 package com.lms.lms.controller;
 
+import com.lms.lms.exception.UserDeletionException;
 import com.lms.lms.model.*;
 import com.lms.lms.model.User.Role;
 import com.lms.lms.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import com.lms.lms.model.Timetable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -129,8 +131,16 @@ public class AdminController {
 
     @GetMapping("/users/delete/{id}")
     public String deleteUser(@PathVariable("id") Long id, RedirectAttributes ra) {
-        userService.deleteUser(id);
-        ra.addFlashAttribute("success", "User deleted!");
+        try {
+            userService.deleteUser(id);
+            ra.addFlashAttribute("success", "User deleted!");
+        } catch (UserDeletionException e) {
+            ra.addFlashAttribute("error", e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            ra.addFlashAttribute("error", "Cannot delete user due to data dependencies. Please deactivate the user instead.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "An error occurred while deleting the user.");
+        }
         return "redirect:/admin/users";
     }
 

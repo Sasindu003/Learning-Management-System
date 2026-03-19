@@ -1,5 +1,6 @@
 package com.lms.lms.service;
 
+import com.lms.lms.exception.UserDeletionException;
 import com.lms.lms.model.*;
 import com.lms.lms.model.User.Role;
 import com.lms.lms.repository.*;
@@ -14,6 +15,8 @@ import java.util.*;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+    private final TimetableRepository timetableRepository;
     private final PasswordEncoder passwordEncoder;
 
     public List<User> findAll() {
@@ -66,6 +69,18 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getRole() == Role.TEACHER) {
+            if (courseRepository.countByTeacher(user) > 0) {
+                throw new UserDeletionException("Cannot delete teacher with associated courses. Please remove or reassign courses first.");
+            }
+            if (!timetableRepository.findByTeacherOrderByDayOfWeekAscStartTimeAsc(user).isEmpty()) {
+                throw new UserDeletionException("Cannot delete teacher with associated timetable slots. Please remove timetable slots first.");
+            }
+        }
+
         userRepository.deleteById(userId);
     }
 
