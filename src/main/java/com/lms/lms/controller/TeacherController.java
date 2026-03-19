@@ -363,12 +363,39 @@ public class TeacherController {
         return "redirect:/teacher/courses/" + courseId;
     }
 
+    // === Edit Material ===
+    @GetMapping("/materials/{id}/edit")
+    public String editMaterial(@PathVariable("id") Long id, Model model) {
+        CourseMaterial material = courseService.getMaterialById(id).orElseThrow();
+        model.addAttribute("material", material);
+        model.addAttribute("course", material.getCourse());
+        return "teacher/material-edit";
+    }
+
+    @PostMapping("/materials/{id}/update")
+    public String updateMaterial(@PathVariable("id") Long id,
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            RedirectAttributes ra) {
+        try {
+            courseService.updateMaterial(id, title, description);
+            CourseMaterial material = courseService.getMaterialById(id).orElseThrow();
+            ra.addFlashAttribute("success", "Material updated!");
+            return "redirect:/teacher/courses/" + material.getCourse().getId();
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Update failed: " + e.getMessage());
+            return "redirect:/teacher/materials/" + id + "/edit";
+        }
+    }
+
     // === Delete Material ===
     @GetMapping("/materials/delete/{id}")
     public String deleteMaterial(@PathVariable("id") Long id, RedirectAttributes ra) {
+        CourseMaterial material = courseService.getMaterialById(id).orElseThrow();
+        Long courseId = material.getCourse().getId();
         courseService.deleteMaterial(id);
         ra.addFlashAttribute("success", "Material deleted!");
-        return "redirect:/teacher/courses";
+        return "redirect:/teacher/courses/" + courseId;
     }
 
     // === Attendance History ===

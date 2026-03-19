@@ -47,8 +47,11 @@
                                 <h5 th:text="${m.title}">Title</h5>
                                 <p class="text-muted" style="font-size:12px" th:text="${m.fileName}">file.pdf</p>
                             </div>
-                            <a th:href="@{/teacher/materials/delete/{id}(id=${m.id})}" class="btn btn-danger btn-sm"
-                                data-confirm="Delete this material?">×</a>
+                            <div class="inline-flex">
+                                <a th:href="@{/teacher/materials/{id}/edit(id=${m.id})}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                                <a th:href="@{/teacher/materials/delete/{id}(id=${m.id})}" class="btn btn-danger btn-sm"
+                                    data-confirm="Delete this material?">×</a>
+                            </div>
                         </div>
                     </div>
                     <div th:if="${#lists.isEmpty(materials)}" class="empty-state">

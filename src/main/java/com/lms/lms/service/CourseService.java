@@ -59,4 +59,16 @@ public class CourseService {
     public void deleteMaterial(Long id) {
         materialRepository.deleteById(id);
     }
+
+    public Optional<CourseMaterial> getMaterialById(Long id) {
+        return materialRepository.findById(id);
+    }
+
+    @Transactional
+    public CourseMaterial updateMaterial(Long id, String title, String description) {
+        CourseMaterial material = materialRepository.findById(id).orElseThrow();
+        material.setTitle(title);
+        material.setDescription(description);
+        return materialRepository.save(material);
+    }
 }
