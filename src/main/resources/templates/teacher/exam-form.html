@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Create Exam / Quiz')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="glass-card" style="max-width:640px">
+                <p class="mb-2"><span class="badge badge-primary" th:text="${course.title}">Course</span></p>
+                <form th:action="@{/teacher/exams/save}" method="post" data-validate>
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <div class="form-group"><label class="form-label">Title *</label>
+                        <input type="text" name="title" class="form-control" required placeholder="e.g. Chapter 1 Quiz">
+                    </div>
+                    <div class="form-group"><label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2"
+                            placeholder="Exam description"></textarea>
+                    </div>
+                    <div class="data-grid">
+                        <div class="form-group"><label class="form-label">Type *</label>
+                            <select name="type" class="form-control" required>
+                                <option value="QUIZ">Quiz</option>
+                                <option value="MIDTERM">Midterm</option>
+                                <option value="FINAL">Final Exam</option>
+                                <option value="ASSIGNMENT_QUIZ">Assignment Quiz</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label class="form-label">Date</label>
+                            <input type="date" name="examDate" class="form-control">
+                        </div>
+                    </div>
+                    <div class="data-grid">
+                        <div class="form-group"><label class="form-label">Duration (minutes)</label>
+                            <input type="number" name="durationMinutes" class="form-control" value="30" min="5">
+                        </div>
+                        <div class="form-group"><label class="form-label">Total Marks</label>
+                            <input type="number" name="totalMarks" class="form-control" value="100" min="1">
+                        </div>
+                    </div>
+                    <div class="inline-flex"><button type="submit" class="btn btn-primary">Create & Add Questions
+                            →</button>
+                        <a th:href="@{/teacher/courses/{id}(id=${course.id})}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
