@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('User Management')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="flex-between mb-3">
+                <div class="inline-flex">
+                    <span class="badge badge-primary">Students: <span th:text="${#lists.size(students)}">0</span></span>
+                    <span class="badge badge-success">Teachers: <span th:text="${#lists.size(teachers)}">0</span></span>
+                    <span class="badge badge-warning">Admins: <span th:text="${#lists.size(admins)}">0</span></span>
+                </div>
+                <a href="/admin/users/new" class="btn btn-primary">+ Add User</a>
+            </div>
+
+            <!-- Teachers Table -->
+            <div class="glass-card mb-3">
+                <h3 class="mb-2">👨‍🏫 Teachers</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Subjects</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="t : ${teachers}">
+                                <td><span class="badge badge-primary" th:text="${t.primaryId}">TE001</span></td>
+                                <td th:text="${t.username}">username</td>
+                                <td th:text="${t.fullName}">Name</td>
+                                <td th:text="${t.email}">email</td>
+                                <td><span th:each="s, iter : ${t.subjects}"
+                                        th:text="${s.name + (iter.last ? '' : ', ')}">Sub</span></td>
+                                <td><span class="badge" th:classappend="${t.enabled} ? 'badge-success' : 'badge-danger'"
+                                        th:text="${t.enabled} ? 'Active' : 'Disabled'">Active</span></td>
+                                <td>
+                                    <div class="inline-flex">
+                                        <a th:href="@{/admin/users/login-as/{id}(id=${t.id})}"
+                                            class="btn btn-success btn-sm" title="Quick login as this user">🔑 Login</a>
+                                        <a th:href="@{/admin/users/edit/{id}(id=${t.id})}"
+                                            class="btn btn-info btn-sm">Edit</a>
+                                        <a th:href="@{/admin/users/toggle/{id}(id=${t.id})}"
+                                            class="btn btn-warning btn-sm"
+                                            th:text="${t.enabled} ? 'Disable' : 'Enable'">Toggle</a>
+                                        <a th:href="@{/admin/users/delete/{id}(id=${t.id})}"
+                                            class="btn btn-danger btn-sm" data-confirm="Delete this user?">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${#lists.isEmpty(teachers)}" class="empty-state">
+                    <p>No teachers yet</p>
+                </div>
+            </div>
+
+            <!-- Students Table -->
+            <div class="glass-card">
+                <h3 class="mb-2">👨‍🎓 Students</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="s : ${students}">
+                                <td><span class="badge badge-info" th:text="${s.primaryId}">ST001</span></td>
+                                <td th:text="${s.username}">username</td>
+                                <td th:text="${s.fullName}">Name</td>
+                                <td th:text="${s.email}">email</td>
+                                <td th:text="${s.grade != null} ? ${s.grade.name} : 'N/A'">Grade</td>
+                                <td><span class="badge" th:classappend="${s.enabled} ? 'badge-success' : 'badge-danger'"
+                                        th:text="${s.enabled} ? 'Active' : 'Disabled'">Active</span></td>
+                                <td>
+                                    <div class="inline-flex">
+                                        <a th:href="@{/admin/users/login-as/{id}(id=${s.id})}"
+                                            class="btn btn-success btn-sm" title="Quick login as this user">🔑 Login</a>
+                                        <a th:href="@{/admin/users/edit/{id}(id=${s.id})}"
+                                            class="btn btn-info btn-sm">Edit</a>
+                                        <a th:href="@{/admin/users/toggle/{id}(id=${s.id})}"
+                                            class="btn btn-warning btn-sm"
+                                            th:text="${s.enabled} ? 'Disable' : 'Enable'">Toggle</a>
+                                        <a th:href="@{/admin/users/delete/{id}(id=${s.id})}"
+                                            class="btn btn-danger btn-sm" data-confirm="Delete this user?">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${#lists.isEmpty(students)}" class="empty-state">
+                    <p>No students yet</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
