@@ -62,13 +62,27 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <!-- Grade for Students (single dropdown) -->
+                    <div class="form-group" id="studentGradeSection">
                         <label class="form-label">Grade (for Students)</label>
                         <select name="gradeId" class="form-control">
                             <option value="">No Grade</option>
                             <option th:each="g : ${grades}" th:value="${g.id}" th:text="${g.name}"
                                 th:selected="${user.grade != null && user.grade.id == g.id}">Grade</option>
                         </select>
+                    </div>
+
+                    <!-- Grades for Teachers (multiple checkboxes) -->
+                    <div class="form-group" id="teacherGradesSection" style="display:none">
+                        <label class="form-label">Grades (for Teachers)</label>
+                        <div style="display:flex;flex-wrap:wrap;gap:12px">
+                            <label th:each="g : ${grades}"
+                                style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary)">
+                                <input type="checkbox" name="gradeIds" th:value="${g.id}"
+                                    th:checked="${user.grades != null && user.grades.contains(g)}">
+                                <span th:text="${g.name}">Grade</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -93,6 +107,30 @@
         </main>
     </div>
     <script th:src="@{/js/app.js}"></script>
+    <script>
+        (function() {
+            var roleSelect = document.querySelector('select[name="role"]');
+            var studentSection = document.getElementById('studentGradeSection');
+            var teacherSection = document.getElementById('teacherGradesSection');
+
+            function toggleGradeSections() {
+                var role = roleSelect.value;
+                if (role === 'TEACHER') {
+                    studentSection.style.display = 'none';
+                    teacherSection.style.display = '';
+                } else if (role === 'STUDENT') {
+                    studentSection.style.display = '';
+                    teacherSection.style.display = 'none';
+                } else {
+                    studentSection.style.display = 'none';
+                    teacherSection.style.display = 'none';
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleGradeSections);
+            toggleGradeSections(); // run on page load
+        })();
+    </script>
 </body>
 
 </html>

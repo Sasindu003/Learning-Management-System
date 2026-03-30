@@ -61,6 +61,10 @@ public class User {
     private Grade grade; // for students
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_grades", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "grade_id"))
+    private Set<Grade> grades = new HashSet<>(); // for teachers (multiple grades)
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<Subject> subjects = new HashSet<>();
 

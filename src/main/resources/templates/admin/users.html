@@ -35,6 +35,7 @@
                                 <th>Username</th>
                                 <th>Full Name</th>
                                 <th>Email</th>
+                                <th>Grades</th>
                                 <th>Subjects</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -46,6 +47,8 @@
                                 <td th:text="${t.username}">username</td>
                                 <td th:text="${t.fullName}">Name</td>
                                 <td th:text="${t.email}">email</td>
+                                <td><span th:each="g, iter : ${t.grades}"
+                                        th:text="${g.name + (iter.last ? '' : ', ')}">Grade</span></td>
                                 <td><span th:each="s, iter : ${t.subjects}"
                                         th:text="${s.name + (iter.last ? '' : ', ')}">Sub</span></td>
                                 <td><span class="badge" th:classappend="${t.enabled} ? 'badge-success' : 'badge-danger'"

@@ -39,6 +39,10 @@
                     <div th:if="${user.grade != null}"><span class="form-label">Grade</span>
                         <p th:text="${user.grade.name}">grade</p>
                     </div>
+                    <div th:if="${user.grades != null && !user.grades.isEmpty()}"><span class="form-label">Grades</span>
+                        <p><span th:each="g,iter : ${user.grades}"
+                                th:text="${g.name + (iter.last ? '' : ', ')}">Grade</span></p>
+                    </div>
                     <div th:if="${user.subjects != null && !user.subjects.isEmpty()}"><span
                             class="form-label">Subjects</span>
                         <p><span th:each="s,iter : ${user.subjects}"

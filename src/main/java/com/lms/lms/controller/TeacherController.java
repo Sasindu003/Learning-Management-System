@@ -57,8 +57,8 @@ public class TeacherController {
     public String courses(Model model, Authentication auth) {
         User teacher = userService.findByUsername(auth.getName()).orElseThrow();
         model.addAttribute("courses", courseService.findByTeacher(teacher));
-        model.addAttribute("grades", gradeService.findAll());
-        model.addAttribute("subjects", subjectService.findAll());
+        model.addAttribute("grades", teacher.getGrades());
+        model.addAttribute("subjects", teacher.getSubjects());
         return "teacher/courses";
     }
 

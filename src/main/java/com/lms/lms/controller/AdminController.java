@@ -73,6 +73,7 @@ public class AdminController {
     @PostMapping("/users/save")
     public String saveUser(@ModelAttribute User user,
             @RequestParam(value = "gradeId", required = false) Long gradeId,
+            @RequestParam(value = "gradeIds", required = false) List<Long> gradeIds,
             @RequestParam(value = "subjectIds", required = false) List<Long> subjectIds,
             RedirectAttributes ra) {
         if (user.getId() == null && userService.existsByUsername(user.getUsername())) {
@@ -80,9 +81,22 @@ public class AdminController {
             return "redirect:/admin/users/new";
         }
 
+        // For students: single grade
         if (gradeId != null) {
             user.setGrade(gradeService.findById(gradeId).orElse(null));
         }
+
+        // For teachers: multiple grades
+        if (gradeIds != null && !gradeIds.isEmpty()) {
+            Set<Grade> grades = new HashSet<>();
+            for (Long gid : gradeIds) {
+                gradeService.findById(gid).ifPresent(grades::add);
+            }
+            user.setGrades(grades);
+        } else {
+            user.setGrades(new HashSet<>());
+        }
+
         if (subjectIds != null) {
             Set<Subject> subjects = new HashSet<>();
             for (Long sid : subjectIds) {
@@ -101,6 +115,7 @@ public class AdminController {
             existing.setPhone(user.getPhone());
             existing.setRole(user.getRole());
             existing.setGrade(user.getGrade());
+            existing.setGrades(user.getGrades());
             existing.setSubjects(user.getSubjects());
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
                 userService.updatePassword(user.getId(), user.getPassword());
