@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!--
+  ===================================================================
+  EduFlow LMS — User Form (Create/Edit)
+  ===================================================================
+  This form is used by Admins to add new teachers and students or
+  update existing ones.
+
+  Key Features:
+  - Validates required fields before submitting
+  - Automatically hides/shows Grade sections based on the selected Role
+  - Uses multiple checkboxes for Teacher grades and Subjects
+  ===================================================================
+-->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Form — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <!-- Sidebar and Topbar include -->
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content" id="main-content">
+            <div th:replace="~{fragments/layout :: topbar(${user.id != null} ? 'Edit User' : 'Create User')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="glass-card" style="max-width:640px">
+                <form th:action="@{/admin/users/save}" method="post" data-validate aria-label="User form">
+                    <!-- Hidden ID field for editing existing users -->
+                    <input type="hidden" th:if="${user.id != null}" name="id" th:value="${user.id}">
+
+                    <div class="form-group">
+                        <label class="form-label" for="role-select">Role *</label>
+                        <select name="role" id="role-select" class="form-control" required>
+                            <option value="">Select Role</option>
+                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"
+                                th:selected="${user.role == r}">Role</option>
+                        </select>
+                    </div>
+
+                    <div class="data-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="username-input">Username *</label>
+                            <input type="text" name="username" id="username-input" class="form-control" th:value="${user.username}" required
+                                minlength="3" maxlength="50"
+                                placeholder="e.g. john.smith" autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="password-input"
+                                th:text="${user.id != null} ? 'New Password (leave blank to keep)' : 'Password *'">Password</label>
+                            <input type="password" name="password" id="password-input" class="form-control" th:required="${user.id == null}"
+                                minlength="6" placeholder="Min 6 characters" autocomplete="new-password">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="name-input">Full Name *</label>
+                        <input type="text" name="fullName" id="name-input" class="form-control" th:value="${user.fullName}" required
+                            placeholder="e.g. John Smith" autocomplete="name">
+                    </div>
+
+                    <div class="data-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="email-input">Email</label>
+                            <input type="email" name="email" id="email-input" class="form-control" th:value="${user.email}"
+                                placeholder="e.g. john@school.com" autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="phone-input">Phone</label>
+                            <input type="text" name="phone" id="phone-input" class="form-control" th:value="${user.phone}"
+                                placeholder="e.g. +94771234567" autocomplete="tel">
+                        </div>
+                    </div>
+
+                    <!-- Grade for Students (single dropdown) -->
+                    <div class="form-group" id="studentGradeSection">
+                        <label class="form-label" for="grade-select">Grade (for Students)</label>
+                        <select name="gradeId" id="grade-select" class="form-control">
+                            <option value="">No Grade</option>
+                            <option th:each="g : ${grades}" th:value="${g.id}" th:text="${g.name}"
+                                th:selected="${user.grade != null && user.grade.id == g.id}">Grade</option>
+                        </select>
+                    </div>
+
+                    <!-- Grades for Teachers (multiple checkboxes) -->
+                    <div class="form-group" id="teacherGradesSection" style="display:none">
+                        <label class="form-label">Grades (for Teachers)</label>
+                        <div style="display:flex;flex-wrap:wrap;gap:12px">
+                            <label th:each="g : ${grades}"
+                                style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer">
+                                <input type="checkbox" name="gradeIds" th:value="${g.id}"
+                                    th:checked="${user.grades != null && user.grades.contains(g)}">
+                                <span th:text="${g.name}">Grade</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Subjects</label>
+                        <div style="display:flex;flex-wrap:wrap;gap:12px">
+                            <label th:each="s : ${subjects}"
+                                style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);cursor:pointer">
+                                <input type="checkbox" name="subjectIds" th:value="${s.id}"
+                                    th:checked="${user.subjects != null && user.subjects.contains(s)}">
+                                <span th:text="${s.name}">Subject</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="inline-flex mt-2">
+                        <button type="submit" class="btn btn-primary"
+                            th:text="${user.id != null} ? 'Update User' : 'Create User'">Save</button>
+                        <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        /**
+         * Dynamic Form Logic:
+         * This script hides or shows specific fields based on the selected user role.
+         * Students only need one Grade, while Teachers can manage multiple Grades.
+         */
+        (function() {
+            var roleSelect = document.getElementById('role-select');
+            var studentSection = document.getElementById('studentGradeSection');
+            var teacherSection = document.getElementById('teacherGradesSection');
+
+            function toggleGradeSections() {
+                var role = roleSelect.value;
+                if (role === 'TEACHER') {
+                    studentSection.style.display = 'none';
+                    teacherSection.style.display = '';
+                } else if (role === 'STUDENT') {
+                    studentSection.style.display = '';
+                    teacherSection.style.display = 'none';
+                } else {
+                    // Hide both for ADMIN or if no role is selected
+                    studentSection.style.display = 'none';
+                    teacherSection.style.display = 'none';
+                }
+            }
+
+            // Listen for changes to the Role dropdown
+            roleSelect.addEventListener('change', toggleGradeSections);
+
+            // Run once on page load to set the initial state (useful when editing a user)
+            toggleGradeSections();
+        })();
+    </script>
+</body>
+
+</html>
