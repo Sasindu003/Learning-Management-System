@@ -190,6 +190,18 @@
                       th:text="${unreadNotifications}"
                       th:attr="aria-label='${unreadNotifications} unread notifications'">0</span>
             </a>
+            <!-- Discussion icon with popup -->
+            <div class="notification-dropdown">
+                <button class="notification-bell" id="discussion-icon" aria-label="Course Discussions">
+                    <span aria-hidden="true">💬</span>
+                </button>
+                <div class="dropdown-popup" id="discussion-popup">
+                    <div class="dropdown-header">Recent Discussions</div>
+                    <div id="discussion-list" class="dropdown-list">
+                        <div class="empty-state">No recent discussions</div>
+                    </div>
+                </div>
+            </div>
             <!-- Messages icon with accessible label -->
             <a href="/messages" class="notification-bell" aria-label="Messages">
                 <span aria-hidden="true">✉️</span>

@@ -44,6 +44,9 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Assignment> assignments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CourseDiscussion> discussions = new ArrayList<>();
+
     private boolean active = true;
 
     private LocalDateTime createdAt;

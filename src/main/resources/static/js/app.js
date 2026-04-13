@@ -227,4 +227,63 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ------------------------------------------------------------------
+    // 8. Discussion Dropdown & Popup
+    // ------------------------------------------------------------------
+    var discussionIcon = document.getElementById('discussion-icon');
+    var discussionPopup = document.getElementById('discussion-popup');
+    var discussionList = document.getElementById('discussion-list');
+
+    if (discussionIcon && discussionPopup) {
+        discussionIcon.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var isActive = discussionPopup.classList.toggle('active');
+
+            if (isActive) {
+                // Fetch recent discussions
+                fetch('/api/discussions/recent')
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        renderDiscussionList(data);
+                    })
+                    .catch(function (error) {
+                        console.error('Error fetching discussions:', error);
+                    });
+            }
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function (e) {
+            if (discussionPopup && !discussionPopup.contains(e.target) && e.target !== discussionIcon) {
+                discussionPopup.classList.remove('active');
+            }
+        });
+    }
+
+    function renderDiscussionList(data) {
+        if (!discussionList) return;
+
+        if (!data || data.length === 0) {
+            discussionList.innerHTML = '<div class="empty-state">No recent discussions</div>';
+            return;
+        }
+
+        // Determine user role for the link (fallback to student if unknown)
+        var userRole = 'student';
+        var sidebar = document.querySelector('.sidebar-nav');
+        if (sidebar && sidebar.innerHTML.includes('/teacher/')) {
+            userRole = 'teacher';
+        } else if (sidebar && sidebar.innerHTML.includes('/admin/')) {
+            userRole = 'admin';
+        }
+
+        discussionList.innerHTML = data.map(function (d) {
+            return '<a href="/' + userRole + '/courses/' + d.courseId + '#discussion-board" class="dropdown-item">' +
+                '<span class="course-name">' + d.courseTitle + '</span>' +
+                '<span class="msg-snippet"><strong>' + d.senderName + ':</strong> ' + d.content + '</span>' +
+                '<span class="msg-meta">' + new Date(d.createdAt).toLocaleString() + '</span>' +
+                '</a>';
+        }).join('');
+    }
+
 });
