@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Admin Dashboard')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍🎓</div>
+                    <div class="stat-value" th:text="${studentCount}">0</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍🏫</div>
+                    <div class="stat-value" th:text="${teacherCount}">0</div>
+                    <div class="stat-label">Total Teachers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📖</div>
+                    <div class="stat-value" th:text="${courseCount}">0</div>
+                    <div class="stat-label">Active Courses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-value" th:text="${gradeCount}">0</div>
+                    <div class="stat-label">Grades</div>
+                </div>
+            </div>
+
+            <div class="data-grid">
+                <div class="glass-card">
+                    <div class="flex-between mb-2">
+                        <h3>📢 Recent Announcements</h3>
+                        <a href="/admin/announcements" class="btn btn-secondary btn-sm">View All</a>
+                    </div>
+                    <div th:each="a : ${recentAnnouncements}" class="announcement-card"
+                        th:classappend="${a.pinned} ? 'pinned'">
+                        <h5 th:text="${a.title}">Title</h5>
+                        <p th:text="${#strings.abbreviate(a.content, 100)}">Content</p>
+                        <div class="meta">
+                            <span class="badge badge-primary" th:text="${a.targetAudience}">ALL</span>
+                            · <span th:text="${#temporals.format(a.createdAt, 'MMM dd, yyyy')}">Date</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(recentAnnouncements)}" class="empty-state">
+                        <p>No announcements yet</p>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="flex-between mb-2">
+                        <h3>🗓️ Upcoming Events</h3>
+                        <a href="/admin/events" class="btn btn-secondary btn-sm">View All</a>
+                    </div>
+                    <div th:each="e : ${upcomingEvents}" class="announcement-card">
+                        <h5 th:text="${e.title}">Event</h5>
+                        <div class="meta">
+                            <span class="badge badge-info" th:text="${e.type}">GENERAL</span>
+                            · <span th:text="${#temporals.format(e.eventDate, 'MMM dd, yyyy')}">Date</span>
+                            <span th:if="${e.eventTime}" th:text="' at ' + ${e.eventTime}"></span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(upcomingEvents)}" class="empty-state">
+                        <p>No upcoming events</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card mt-3">
+                <h3 class="mb-2">⚡ Quick Actions</h3>
+                <div class="inline-flex" style="flex-wrap:wrap;gap:12px">
+                    <a href="/admin/users/new" class="btn btn-primary">+ Add User</a>
+                    <a href="/admin/grades" class="btn btn-info">Manage Grades</a>
+                    <a href="/admin/subjects" class="btn btn-success">Manage Subjects</a>
+                    <a href="/admin/announcements" class="btn btn-warning">Post Announcement</a>
+                    <a href="/admin/events" class="btn btn-secondary">Create Event</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

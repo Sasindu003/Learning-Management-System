@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Courses — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('My Courses')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="courses-container">
+
+                <!-- Search & Filter Bar -->
+                <div class="glass-card mb-3" th:if="${not #maps.isEmpty(coursesBySubject)}" style="padding: 16px 20px;">
+                    <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                        <!-- Search -->
+                        <div style="flex: 1; min-width: 220px;">
+                            <input type="text" id="courseSearch" class="form-control"
+                                placeholder="🔍 Search courses by name, instructor..."
+                                oninput="applyFilters()" style="padding: 8px 14px; font-size: 13px;">
+                        </div>
+                        <!-- Filter Checkboxes -->
+                        <div id="filterGroup"
+                            style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; padding-top: 4px;">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="pendingAssignments" onchange="applyFilters()">
+                                <span class="filter-label filter-pending-a">📝 Pending Assignments</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="completedAssignments" onchange="applyFilters()">
+                                <span class="filter-label filter-completed-a">✅ Completed Assignments</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="pendingQuizzes" onchange="applyFilters()">
+                                <span class="filter-label filter-pending-q">❓ Pending Quizzes</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="completedQuizzes" onchange="applyFilters()">
+                                <span class="filter-label filter-completed-q">🏆 Completed Quizzes</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="section-controls" th:if="${not #maps.isEmpty(coursesBySubject)}">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleAllSections(true)">
+                        <span class="expand-icon">▼</span> Expand All
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="toggleAllSections(false)">
+                        <span class="expand-icon">▶</span> Collapse All
+                    </button>
+                    <span id="resultCount" style="font-size: 12px; color: var(--text-muted); margin-left: auto;"></span>
+                </div>
+
+                <!-- Subject Sections -->
+                <div th:each="entry : ${coursesBySubject}" class="subject-section">
+                    <div class="section-header" th:onclick="toggleSection(this)">
+                        <span class="section-toggle-icon">▶</span>
+                        <h3 class="section-title" th:text="${entry.key}">Subject Name</h3>
+                        <span class="section-count"
+                            th:text="'(' + ${#lists.size(entry.value)} + ' course' + (${#lists.size(entry.value)} > 1 ? 's' : '') + ')'">0
+                            courses</span>
+                    </div>
+                    <div class="section-content">
+                        <div class="card-grid">
+                            <div th:each="c : ${entry.value}" class="content-card course-card"
+                                th:data-title="${c.title}"
+                                th:data-instructor="${c.teacher.fullName}"
+                                th:data-course-id="${c.id}"
+                                th:data-pending-assignments="${courseStats[c.id]['pendingAssignments']}"
+                                th:data-completed-assignments="${courseStats[c.id]['completedAssignments']}"
+                                th:data-pending-quizzes="${courseStats[c.id]['pendingQuizzes']}"
+                                th:data-completed-quizzes="${courseStats[c.id]['completedQuizzes']}">
+                                <h4 th:text="${c.title}">Course</h4>
+                                <p><span class="badge badge-primary" th:text="${c.subject.name}">Subject</span>
+                                    <span class="badge badge-info" th:text="${c.grade.name}">Grade</span>
+                                </p>
+                                <!-- Status indicators -->
+                                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
+                                    <span class="badge badge-warning"
+                                        th:if="${courseStats[c.id]['pendingAssignments'] > 0}"
+                                        th:text="'📝 ' + ${courseStats[c.id]['pendingAssignments']} + ' pending'"></span>
+                                    <span class="badge badge-success"
+                                        th:if="${courseStats[c.id]['completedAssignments'] > 0}"
+                                        th:text="'✅ ' + ${courseStats[c.id]['completedAssignments']} + ' done'"></span>
+                                    <span class="badge badge-danger"
+                                        th:if="${courseStats[c.id]['pendingQuizzes'] > 0}"
+                                        th:text="'❓ ' + ${courseStats[c.id]['pendingQuizzes']} + ' quiz'"></span>
+                                    <span class="badge badge-primary"
+                                        th:if="${courseStats[c.id]['completedQuizzes'] > 0}"
+                                        th:text="'🏆 ' + ${courseStats[c.id]['completedQuizzes']} + ' passed'"></span>
+                                </div>
+                                <p class="text-muted" th:text="${c.description}">Description</p>
+                                <p style="font-size:13px">Instructor: <strong
+                                        th:text="${c.teacher.fullName}">Teacher</strong></p>
+                                <div class="card-footer" style="display: flex; gap: 15px; align-items: center;">
+                                    <a th:href="@{/student/courses/{id}(id=${c.id})}" class="btn btn-info btn-sm">View
+                                        Course →</a>
+                                    <a th:href="@{/courses/{id}/toggle-pin(id=${c.id})}"
+                                        style="text-decoration: none; font-size: 20px; line-height: 1;"
+                                        th:title="${currentUser.pinnedCourses.contains(c)} ? 'Unpin from Dashboard' : 'Pin to Dashboard'">
+                                        <span th:text="${currentUser.pinnedCourses.contains(c)} ? '⭐' : '☆'"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${#maps.isEmpty(coursesBySubject)}" class="glass-card">
+                    <div class="empty-state">
+                        <div class="icon">📖</div>
+                        <h4>No courses available</h4>
+                        <p>Courses will appear here once assigned to your grade</p>
+                    </div>
+                </div>
+
+                <!-- No Results State (hidden by default) -->
+                <div id="noResults" class="glass-card" style="display: none;">
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <h4>No courses match your filters</h4>
+                        <p>Try adjusting your search or filter criteria</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        // Toggle individual section
+        function toggleSection(header) {
+            const section = header.parentElement;
+            const content = section.querySelector('.section-content');
+            const icon = header.querySelector('.section-toggle-icon');
+
+            const isExpanded = section.classList.contains('expanded');
+
+            if (isExpanded) {
+                section.classList.remove('expanded');
+                content.style.maxHeight = '0';
+                content.style.opacity = '0';
+                icon.textContent = '▶';
+            } else {
+                section.classList.add('expanded');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                content.style.opacity = '1';
+                icon.textContent = '▼';
+            }
+        }
+
+        // Toggle all sections
+        function toggleAllSections(expand) {
+            const sections = document.querySelectorAll('.subject-section');
+            sections.forEach(section => {
+                if (section.style.display === 'none') return;
+                const content = section.querySelector('.section-content');
+                const icon = section.querySelector('.section-toggle-icon');
+
+                if (expand) {
+                    section.classList.add('expanded');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.opacity = '1';
+                    icon.textContent = '▼';
+                } else {
+                    section.classList.remove('expanded');
+                    content.style.maxHeight = '0';
+                    content.style.opacity = '0';
+                    icon.textContent = '▶';
+                }
+            });
+        }
+
+        // Apply search + filter
+        function applyFilters() {
+            const query = document.getElementById('courseSearch').value.toLowerCase().trim();
+            const checkboxes = document.querySelectorAll('#filterGroup input[type="checkbox"]:checked');
+            const activeFilters = Array.from(checkboxes).map(cb => cb.value);
+
+            const allCards = document.querySelectorAll('.course-card');
+            let visibleCount = 0;
+
+            allCards.forEach(card => {
+                const title = (card.dataset.title || '').toLowerCase();
+                const instructor = (card.dataset.instructor || '').toLowerCase();
+
+                // Search match
+                const matchesSearch = !query || title.includes(query) || instructor.includes(query);
+
+                // Filter match — if no filters selected, show all; otherwise card must match ALL checked filters
+                let matchesFilter = true;
+                if (activeFilters.length > 0) {
+                    matchesFilter = activeFilters.every(filter => {
+                        if (filter === 'pendingAssignments') return parseInt(card.dataset.pendingAssignments || 0) > 0;
+                        if (filter === 'completedAssignments') return parseInt(card.dataset.completedAssignments || 0) > 0;
+                        if (filter === 'pendingQuizzes') return parseInt(card.dataset.pendingQuizzes || 0) > 0;
+                        if (filter === 'completedQuizzes') return parseInt(card.dataset.completedQuizzes || 0) > 0;
+                        return true;
+                    });
+                }
+
+                const visible = matchesSearch && matchesFilter;
+                card.style.display = visible ? '' : 'none';
+                if (visible) visibleCount++;
+            });
+
+            // Show/hide subject sections based on visible cards within them
+            const sections = document.querySelectorAll('.subject-section');
+            sections.forEach(section => {
+                const cards = section.querySelectorAll('.course-card');
+                const hasVisible = Array.from(cards).some(c => c.style.display !== 'none');
+                section.style.display = hasVisible ? '' : 'none';
+
+                // Update section count
+                const visibleCards = Array.from(cards).filter(c => c.style.display !== 'none');
+                const countEl = section.querySelector('.section-count');
+                if (countEl) {
+                    countEl.textContent = '(' + visibleCards.length + ' course' + (visibleCards.length !== 1 ? 's' : '') + ')';
+                }
+
+                // Auto-expand sections with visible results when filtering
+                if (hasVisible && (query || activeFilters.length > 0)) {
+                    section.classList.add('expanded');
+                    const content = section.querySelector('.section-content');
+                    const icon = section.querySelector('.section-toggle-icon');
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.opacity = '1';
+                    icon.textContent = '▼';
+                }
+            });
+
+            // Update result count
+            const totalCards = allCards.length;
+            const countEl = document.getElementById('resultCount');
+            if (query || activeFilters.length > 0) {
+                countEl.textContent = 'Showing ' + visibleCount + ' of ' + totalCards + ' courses';
+            } else {
+                countEl.textContent = '';
+            }
+
+            // Show/hide no results
+            const noResults = document.getElementById('noResults');
+            const hasAnyFilter = query || activeFilters.length > 0;
+            noResults.style.display = (hasAnyFilter && visibleCount === 0) ? '' : 'none';
+        }
+
+        // Auto-expand first section on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstSection = document.querySelector('.subject-section');
+            if (firstSection) {
+                firstSection.classList.add('expanded');
+                const content = firstSection.querySelector('.section-content');
+                const icon = firstSection.querySelector('.section-toggle-icon');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                content.style.opacity = '1';
+                icon.textContent = '▼';
+            }
+        });
+    </script>
+</body>
+
+</html>
