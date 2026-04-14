@@ -51,6 +51,7 @@ public class CourseDiscussionController {
             map.put("courseId", d.getCourse().getId());
             map.put("courseTitle", d.getCourse().getTitle());
             map.put("senderName", d.getSender().getFullName());
+            map.put("senderUsername", d.getSender().getUsername());
             map.put("content", d.getContent().length() > 50 ? d.getContent().substring(0, 47) + "..." : d.getContent());
             map.put("createdAt", d.getCreatedAt());
             return map;
@@ -125,6 +126,7 @@ public class CourseDiscussionController {
         return Map.of(
             "id", d.getId(),
             "senderId", d.getSender().getId(),
+            "senderUsername", d.getSender().getUsername(),
             "senderName", d.getSender().getFullName(),
             "senderRole", d.getSender().getRole().toString(),
             "content", d.getContent(),
