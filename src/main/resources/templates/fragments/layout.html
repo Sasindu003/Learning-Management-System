@@ -147,9 +147,12 @@
                   Show first letter of the user's name as an avatar.
                   If fullName is somehow empty, fall back safely to 'U'.
                 -->
-                <div class="user-avatar"
-                     th:text="${!#strings.isEmpty(currentUser.fullName)} ? ${currentUser.fullName.substring(0,1)} : 'U'"
-                     aria-hidden="true">U</div>
+                <div class="user-avatar-container" th:if="${currentUser != null}">
+                    <div class="user-avatar"
+                         th:text="${!#strings.isEmpty(currentUser.fullName)} ? ${currentUser.fullName.substring(0,1)} : 'U'"
+                         aria-hidden="true">U</div>
+                    <span class="status-indicator online" th:attr="data-username=${currentUser.username}"></span>
+                </div>
                 <div class="user-info">
                     <div class="name"  th:text="${currentUser.fullName}">User</div>
                     <div class="role"  th:text="${currentUser.role}">Role</div>
@@ -179,6 +182,10 @@
                     aria-expanded="false"
                     aria-controls="sidebar"
                     style="margin-right:12px">☰</button>
+            <button id="theme-toggle"
+                    class="btn btn-secondary btn-sm"
+                    aria-label="Toggle dark mode"
+                    style="margin-right:12px">🌓</button>
             <h2 th:text="${title}">Page Title</h2>
         </div>
         <div class="topbar-actions">
@@ -211,6 +218,7 @@
                       th:attr="aria-label='${unreadMessages} unread messages'">0</span>
             </a>
             <a href="/profile" class="btn btn-secondary btn-sm">
+                <span class="status-indicator online" th:attr="data-username=${currentUser?.username}"></span>
                 <span th:text="${currentUser?.fullName}">User</span>
             </a>
         </div>

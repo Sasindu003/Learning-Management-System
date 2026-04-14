@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management — EduFlow LMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 
 <body>
@@ -43,7 +45,10 @@
                         </thead>
                         <tbody>
                             <tr th:each="t : ${teachers}">
-                                <td><span class="badge badge-primary" th:text="${t.primaryId}">TE001</span></td>
+                                <td>
+                                    <span class="status-indicator" th:attr="data-username=${t.username}"></span>
+                                    <span class="badge badge-primary" th:text="${t.primaryId}">TE001</span>
+                                </td>
                                 <td th:text="${t.username}">username</td>
                                 <td th:text="${t.fullName}">Name</td>
                                 <td th:text="${t.email}">email</td>
@@ -97,7 +102,10 @@
                         </thead>
                         <tbody>
                             <tr th:each="s : ${students}">
-                                <td><span class="badge badge-info" th:text="${s.primaryId}">ST001</span></td>
+                                <td>
+                                    <span class="status-indicator" th:attr="data-username=${s.username}"></span>
+                                    <span class="badge badge-info" th:text="${s.primaryId}">ST001</span>
+                                </td>
                                 <td th:text="${s.username}">username</td>
                                 <td th:text="${s.fullName}">Name</td>
                                 <td th:text="${s.email}">email</td>

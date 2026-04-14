@@ -280,10 +280,74 @@ document.addEventListener('DOMContentLoaded', function () {
         discussionList.innerHTML = data.map(function (d) {
             return '<a href="/' + userRole + '/courses/' + d.courseId + '#discussion-board" class="dropdown-item">' +
                 '<span class="course-name">' + d.courseTitle + '</span>' +
-                '<span class="msg-snippet"><strong>' + d.senderName + ':</strong> ' + d.content + '</span>' +
+                '<span class="msg-snippet">' +
+                '<span class="status-indicator" data-username="' + d.senderUsername + '"></span>' +
+                '<strong>' + d.senderName + ':</strong> ' + d.content + '</span>' +
                 '<span class="msg-meta">' + new Date(d.createdAt).toLocaleString() + '</span>' +
                 '</a>';
         }).join('');
+    }
+
+    // ------------------------------------------------------------------
+    // 9. Theme Toggle (Dark/Light Mode)
+    // ------------------------------------------------------------------
+    var themeToggle = document.getElementById('theme-toggle');
+    var htmlElement = document.documentElement;
+
+    // Load saved theme or use system preference
+    var savedTheme = localStorage.getItem('theme');
+    var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    var currentTheme = savedTheme || systemTheme;
+
+    // Initialize theme
+    htmlElement.setAttribute('data-theme', currentTheme);
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+            var newTheme = htmlElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // 10. User Online Status (Real-time)
+    // ------------------------------------------------------------------
+    if (isAuthenticatedPage) {
+        // Use standard Stomp/SockJS if available
+        var socket = new SockJS('/ws-chat');
+        var stompClient = Stomp.over(socket);
+        
+        // Disable debug logging to keep console clean
+        stompClient.debug = null;
+
+        stompClient.connect({}, function (frame) {
+            // Subscribe to status updates
+            stompClient.subscribe('/topic/users/status', function (message) {
+                var data = JSON.parse(message.body);
+                updateUserStatusDot(data.username, data.status === 'ONLINE');
+            });
+
+            // Fetch initial status list
+            fetch('/api/users/online')
+                .then(function (r) { return r.json(); })
+                .then(function (onlineUsernames) {
+                    onlineUsernames.forEach(function (username) {
+                        updateUserStatusDot(username, true);
+                    });
+                });
+        });
+    }
+
+    function updateUserStatusDot(username, isOnline) {
+        var dots = document.querySelectorAll('.status-indicator[data-username="' + username + '"]');
+        dots.forEach(function (dot) {
+            if (isOnline) {
+                dot.classList.add('online');
+            } else {
+                dot.classList.remove('online');
+            }
+        });
     }
 
 });
