@@ -30,6 +30,7 @@ public class Assignment {
     @Column(nullable = false)
     private LocalDateTime dueDate;
 
+    @Builder.Default
     private int maxMarks = 100;
 
     private String attachmentPath;
@@ -39,6 +40,7 @@ public class Assignment {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @Builder.Default
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AssignmentSubmission> submissions = new ArrayList<>();
 
