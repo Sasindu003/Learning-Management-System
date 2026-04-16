@@ -17,7 +17,7 @@
             <div class="data-grid" style="max-width:900px">
                 <div class="glass-card">
                     <h3 class="mb-2">Personal Info</h3>
-                    <form th:action="@{/profile/update}" method="post" data-validate>
+                    <form th:action="@{/profile/update}" method="post" enctype="multipart/form-data" data-validate>
                         <div class="form-group"><label class="form-label">Full Name *</label>
                             <input type="text" name="fullName" class="form-control" th:value="${user.fullName}"
                                 required>
@@ -28,8 +28,15 @@
                         <div class="form-group"><label class="form-label">Phone</label>
                             <input type="text" name="phone" class="form-control" th:value="${user.phone}">
                         </div>
+                        <div class="form-group"><label class="form-label">Profile Image (Square recommended)</label>
+                            <input type="file" name="profileImage" class="form-control" accept="image/*">
+                        </div>
                         <div class="form-group"><label class="form-label">Address</label>
                             <textarea name="address" class="form-control" rows="2" th:text="${user.address}"></textarea>
+                        </div>
+                        <div class="form-group"><label class="form-label">Professional Bio (Public)</label>
+                            <textarea name="bio" class="form-control" rows="4" placeholder="Tell us about yourself..." th:text="${user.bio}"></textarea>
+                            <small class="text-muted">This bio will be visible on your public portfolio.</small>
                         </div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>

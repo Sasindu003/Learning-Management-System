@@ -54,16 +54,48 @@
                 </div>
             </div>
 
-            <div class="glass-card">
-                <h3 class="mb-2">📢 Recent Announcements</h3>
-                <div th:each="a : ${recentAnnouncements}" class="announcement-card">
-                    <h5 th:text="${a.title}">Title</h5>
-                    <p th:text="${#strings.abbreviate(a.content, 100)}">Content</p>
-                    <div class="meta"><span th:text="${#temporals.format(a.createdAt, 'MMM dd, yyyy')}">Date</span>
+            <div class="data-grid">
+                <!-- Announcements -->
+                <div class="glass-card">
+                    <h3 class="mb-2">📢 Recent Announcements</h3>
+                    <div th:each="a : ${recentAnnouncements}" class="announcement-card">
+                        <h5 th:text="${a.title}">Title</h5>
+                        <p th:text="${#strings.abbreviate(a.content, 100)}">Content</p>
+                        <div class="meta"><span th:text="${#temporals.format(a.createdAt, 'MMM dd, yyyy')}">Date</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(recentAnnouncements)}" class="empty-state">
+                        <p>No announcements</p>
                     </div>
                 </div>
-                <div th:if="${#lists.isEmpty(recentAnnouncements)}" class="empty-state">
-                    <p>No announcements</p>
+
+                <!-- Activity Feed -->
+                <div class="glass-card">
+                    <h3 class="mb-2">⚡ Student Activity</h3>
+                    <div class="activity-feed">
+                        <div th:each="act : ${recentActivities}" class="activity-item">
+                            <div class="activity-avatar" th:text="${act.studentName != null && !#strings.isEmpty(act.studentName) ? #strings.substring(act.studentName, 0, 1) : 'S'}">S</div>
+                            <div class="activity-content">
+                                <div class="activity-header">
+                                    <span class="activity-student" th:text="${act.studentName}">Student Name</span>
+                                    <span class="activity-time" th:text="${#temporals.format(act.timestamp, 'HH:mm')}">Time</span>
+                                </div>
+                                <div class="activity-desc">
+                                    <span class="activity-type-badge" 
+                                          th:classappend="${act.activityType == 'SUBMISSION' ? 'type-submission' : (act.activityType == 'EXAM_ATTEMPT' ? 'type-exam' : 'type-discussion')}"
+                                          th:text="${act.activityType}">TYPE</span>
+                                    <span th:text="${act.description}">Description</span>
+                                </div>
+                                <div class="activity-meta" style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div><span>📚</span> <span th:text="${act.courseName}">Course</span></div>
+                                    <a th:href="${act.targetUrl}" style="color: var(--primary-light); font-size: 10px; text-decoration: none;">View Detail →</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(recentActivities)}" class="empty-state">
+                            <p>No recent activity</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

@@ -30,6 +30,8 @@ public class AdminController {
     private final NotificationService notificationService;
     private final TimetableService timetableService;
     private final MessageService messageService;
+    private final CalendarEntryTypeService calendarEntryTypeService;
+    private final LoginLogService loginLogService;
 
     @ModelAttribute
     public void addCommonAttributes(Model model, Authentication auth) {
@@ -270,6 +272,9 @@ public class AdminController {
     @GetMapping("/events")
     public String events(Model model) {
         model.addAttribute("events", eventService.findAll());
+        model.addAttribute("entryTypes", calendarEntryTypeService.findAll());
+        model.addAttribute("grades", gradeService.findAll());
+        model.addAttribute("subjects", subjectService.findAll());
         return "admin/events";
     }
 
@@ -277,15 +282,40 @@ public class AdminController {
     public String saveEvent(@RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam("eventDate") java.time.LocalDate eventDate,
+            @RequestParam(value = "allDay", defaultValue = "true") boolean allDay,
             @RequestParam(value = "eventTime", required = false) String eventTime,
-            @RequestParam("type") Event.EventType type,
+            @RequestParam(value = "entryTypeId", required = false) Long entryTypeId,
+            @RequestParam(value = "targetGradeIds", required = false) List<Long> targetGradeIds,
+            @RequestParam(value = "targetSubjectIds", required = false) List<Long> targetSubjectIds,
             Authentication auth,
             RedirectAttributes ra) {
         User user = userService.findByUsername(auth.getName()).orElseThrow();
-        Event e = Event.builder()
+        Event.EventBuilder builder = Event.builder()
                 .title(title).description(description).eventDate(eventDate)
-                .eventTime(eventTime).type(type).createdBy(user)
-                .build();
+                .allDay(allDay).eventTime(allDay ? null : eventTime)
+                .createdBy(user);
+
+        if (entryTypeId != null) {
+            calendarEntryTypeService.findById(entryTypeId).ifPresent(builder::entryType);
+        }
+
+        Event e = builder.build();
+
+        if (targetGradeIds != null) {
+            Set<Grade> grades = new java.util.HashSet<>();
+            for (Long gid : targetGradeIds) {
+                gradeService.findById(gid).ifPresent(grades::add);
+            }
+            e.setTargetGrades(grades);
+        }
+        if (targetSubjectIds != null) {
+            Set<Subject> subjects = new java.util.HashSet<>();
+            for (Long sid : targetSubjectIds) {
+                subjectService.findById(sid).ifPresent(subjects::add);
+            }
+            e.setTargetSubjects(subjects);
+        }
+
         eventService.save(e);
         ra.addFlashAttribute("success", "Event created!");
         return "redirect:/admin/events";
@@ -296,6 +326,37 @@ public class AdminController {
         eventService.delete(id);
         ra.addFlashAttribute("success", "Event deleted!");
         return "redirect:/admin/events";
+    }
+
+    // === Event Types ===
+    @GetMapping("/event-types")
+    public String eventTypes(Model model) {
+        model.addAttribute("eventTypes", calendarEntryTypeService.findAll());
+        return "admin/event-types";
+    }
+
+    @PostMapping("/event-types/save")
+    public String saveEventType(@RequestParam(value = "id", required = false) Long id,
+            @RequestParam("name") String name,
+            @RequestParam(value = "color", defaultValue = "#6366f1") String color,
+            @RequestParam(value = "icon", defaultValue = "📅") String icon,
+            RedirectAttributes ra) {
+        CalendarEntryType type = id != null
+                ? calendarEntryTypeService.findById(id).orElse(new CalendarEntryType())
+                : new CalendarEntryType();
+        type.setName(name);
+        type.setColor(color);
+        type.setIcon(icon);
+        calendarEntryTypeService.save(type);
+        ra.addFlashAttribute("success", "Event type saved!");
+        return "redirect:/admin/event-types";
+    }
+
+    @GetMapping("/event-types/delete/{id}")
+    public String deleteEventType(@PathVariable("id") Long id, RedirectAttributes ra) {
+        calendarEntryTypeService.delete(id);
+        ra.addFlashAttribute("success", "Event type deleted!");
+        return "redirect:/admin/event-types";
     }
 
     // === Academic Terms ===
@@ -447,5 +508,26 @@ public class AdminController {
         response.put("grades", gradesList);
         response.put("subjects", subjectsList);
         return response;
+    }
+
+    // === Login History ===
+    @GetMapping("/login-history")
+    public String loginHistory(Model model) {
+        model.addAttribute("logs", loginLogService.getAllLogs());
+        return "admin/login-history";
+    }
+
+    @PostMapping("/login-history/delete/{id}")
+    public String deleteLog(@PathVariable("id") Long id, RedirectAttributes ra) {
+        loginLogService.deleteLog(id);
+        ra.addFlashAttribute("success", "Login log deleted successfully.");
+        return "redirect:/admin/login-history";
+    }
+
+    @PostMapping("/login-history/clear")
+    public String clearAllLogs(RedirectAttributes ra) {
+        loginLogService.clearAllLogs();
+        ra.addFlashAttribute("success", "All login logs cleared.");
+        return "redirect:/admin/login-history";
     }
 }

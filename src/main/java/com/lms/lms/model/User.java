@@ -46,12 +46,16 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Builder.Default
     private boolean enabled = true;
 
     private String profilePicture;
 
     @Column(length = 500)
     private String address;
+
+    @Column(length = 2000)
+    private String bio;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -60,14 +64,17 @@ public class User {
     @JoinColumn(name = "grade_id")
     private Grade grade; // for students
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_grades", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "grade_id"))
     private Set<Grade> grades = new HashSet<>(); // for teachers (multiple grades)
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<Subject> subjects = new HashSet<>();
 
+    @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_pinned_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private Set<Course> pinnedCourses = new HashSet<>();

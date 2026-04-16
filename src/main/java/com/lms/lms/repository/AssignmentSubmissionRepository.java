@@ -24,4 +24,11 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
     long countByAssignmentAndGraded(Assignment assignment, boolean graded);
 
     boolean existsByAssignmentAndStudent(Assignment assignment, User student);
+
+    @org.springframework.data.jpa.repository.Query("SELECT s FROM AssignmentSubmission s WHERE s.assignment.course.teacher = :teacher AND s.student.grade IN :grades ORDER BY s.submittedAt DESC")
+    List<AssignmentSubmission> findRecentByTeacherAndGrades(
+        @org.springframework.data.repository.query.Param("teacher") com.lms.lms.model.User teacher, 
+        @org.springframework.data.repository.query.Param("grades") Set<com.lms.lms.model.Grade> grades, 
+        org.springframework.data.domain.Pageable pageable
+    );
 }

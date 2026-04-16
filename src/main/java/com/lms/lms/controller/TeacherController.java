@@ -33,6 +33,7 @@ public class TeacherController {
     private final MessageService messageService;
     private final AnnouncementService announcementService;
     private final TimetableService timetableService;
+    private final TeacherActivityService teacherActivityService;
 
     @ModelAttribute
     public void addCommonAttributes(Model model, Authentication auth) {
@@ -59,6 +60,7 @@ public class TeacherController {
         model.addAttribute("pinnedCourses", pinned);
 
         model.addAttribute("recentAnnouncements", announcementService.findRecent());
+        model.addAttribute("recentActivities", teacherActivityService.getRecentActivities(teacher));
         return "teacher/dashboard";
     }
 

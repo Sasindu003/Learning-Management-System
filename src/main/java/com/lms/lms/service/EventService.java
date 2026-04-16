@@ -5,6 +5,7 @@ import com.lms.lms.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -17,7 +18,7 @@ public class EventService {
     }
 
     public List<Event> findUpcoming() {
-        return eventRepository.findByEventDateAfterOrderByEventDateAsc(java.time.LocalDate.now());
+        return eventRepository.findByEventDateAfterOrderByEventDateAsc(LocalDate.now());
     }
 
     public Optional<Event> findById(Long id) {

@@ -30,9 +30,11 @@ public class Announcement {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private TargetAudience targetAudience = TargetAudience.ALL;
-
+    
+    @Builder.Default
     private boolean pinned = false;
 
     private LocalDateTime createdAt;

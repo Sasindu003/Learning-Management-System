@@ -27,26 +27,33 @@ public class Exam {
     @Column(length = 500)
     private String description;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private ExamType type = ExamType.QUIZ;
 
     private LocalDateTime examDate;
 
+    @Builder.Default
     private int durationMinutes = 30;
+    @Builder.Default
     private int totalMarks = 100;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @Builder.Default
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("questionOrder ASC")
     private List<ExamQuestion> questions = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamAttempt> attempts = new ArrayList<>();
 
+    @Builder.Default
     private boolean published = false;
+    @Builder.Default
     private boolean active = true;
 
     private LocalDateTime createdAt;

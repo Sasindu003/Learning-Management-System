@@ -17,6 +17,7 @@ public class ProfileController {
     private final UserService userService;
     private final NotificationService notificationService;
     private final MessageService messageService;
+    private final FileStorageService fileStorageService;
 
     @ModelAttribute
     public void addCommonAttributes(Model model, Authentication auth) {
@@ -47,14 +48,27 @@ public class ProfileController {
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "bio", required = false) String bio,
+            @RequestParam(value = "profileImage", required = false) org.springframework.web.multipart.MultipartFile profileImage,
             Authentication auth, RedirectAttributes ra) {
-        User user = userService.findByUsername(auth.getName()).orElseThrow();
-        user.setFullName(fullName);
-        user.setEmail(email);
-        user.setPhone(phone);
-        user.setAddress(address);
-        userService.updateUser(user);
-        ra.addFlashAttribute("success", "Profile updated!");
+        try {
+            User user = userService.findByUsername(auth.getName()).orElseThrow();
+            user.setFullName(fullName);
+            user.setEmail(email);
+            user.setPhone(phone);
+            user.setAddress(address);
+            user.setBio(bio);
+
+            if (profileImage != null && !profileImage.isEmpty()) {
+                String imagePath = fileStorageService.store(profileImage, "profiles");
+                user.setProfilePicture(imagePath);
+            }
+
+            userService.updateUser(user);
+            ra.addFlashAttribute("success", "Profile updated!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Update failed: " + e.getMessage());
+        }
         return "redirect:/profile";
     }
 

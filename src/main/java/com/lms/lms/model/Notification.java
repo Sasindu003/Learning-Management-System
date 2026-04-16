@@ -26,9 +26,11 @@ public class Notification {
 
     private String link;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private NotificationType type = NotificationType.INFO;
 
+    @Builder.Default
     private boolean read = false;
 
     private LocalDateTime createdAt;

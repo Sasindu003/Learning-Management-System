@@ -28,6 +28,7 @@ public class Attendance {
     @Column(nullable = false)
     private LocalDate date;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AttendanceStatus status = AttendanceStatus.PRESENT;

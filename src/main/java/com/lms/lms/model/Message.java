@@ -34,8 +34,11 @@ public class Message {
     @NotBlank(message = "Content is required")
     private String content;
 
+    @Builder.Default
     private boolean read = false;
+    @Builder.Default
     private boolean deletedBySender = false;
+    @Builder.Default
     private boolean deletedByReceiver = false;
 
     private LocalDateTime sentAt;

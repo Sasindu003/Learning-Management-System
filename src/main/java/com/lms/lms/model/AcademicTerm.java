@@ -28,6 +28,7 @@ public class AcademicTerm {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    @Builder.Default
     private boolean active = false;
 
     @Column(length = 300)

@@ -65,6 +65,8 @@
                     <div class="nav-section-title">Communication</div>
                     <a href="/admin/announcements" class="nav-link"><span class="icon" aria-hidden="true">📢</span> Announcements</a>
                     <a href="/admin/events"        class="nav-link"><span class="icon" aria-hidden="true">🗓️</span> Events</a>
+                    <a href="/admin/event-types"   class="nav-link"><span class="icon" aria-hidden="true">🎨</span> Event Types</a>
+                    <a href="/admin/login-history" class="nav-link"><span class="icon" aria-hidden="true">🔐</span> Login History</a>
                     <a href="/messages" class="nav-link">
                         <span class="icon" aria-hidden="true">✉️</span> Messages
                         <span th:if="${unreadMessages > 0}" class="badge badge-danger"
@@ -82,6 +84,7 @@
                     <a href="/teacher/courses"   class="nav-link"><span class="icon" aria-hidden="true">📖</span> My Courses</a>
                     <a href="/teacher/students"  class="nav-link"><span class="icon" aria-hidden="true">👥</span> My Students</a>
                     <a href="/teacher/timetable" class="nav-link"><span class="icon" aria-hidden="true">🕐</span> My Schedule</a>
+                    <a href="/calendar"          class="nav-link"><span class="icon" aria-hidden="true">📅</span> Calendar</a>
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">Communication</div>
@@ -106,6 +109,7 @@
                     <a href="/student/grades"       class="nav-link"><span class="icon" aria-hidden="true">📊</span> My Grades</a>
                     <a href="/student/timetable"    class="nav-link"><span class="icon" aria-hidden="true">🕐</span> Timetable</a>
                     <a href="/student/attendance"   class="nav-link"><span class="icon" aria-hidden="true">📋</span> Attendance</a>
+                    <a href="/calendar"             class="nav-link"><span class="icon" aria-hidden="true">📅</span> Calendar</a>
                 </div>
                 <div class="nav-section">
                     <div class="nav-section-title">Communication</div>
@@ -128,7 +132,8 @@
                           th:text="${unreadNotifications}"
                           th:attr="aria-label='${unreadNotifications} unread notifications'"></span>
                 </a>
-                <a href="/profile" class="nav-link"><span class="icon" aria-hidden="true">👤</span> Profile</a>
+                <a th:href="@{'/portfolio/@' + ${currentUser.username}}" target="_blank" class="nav-link"><span class="icon" aria-hidden="true">🌐</span> My Portfolio</a>
+                <a href="/profile/edit" class="nav-link"><span class="icon" aria-hidden="true">⚙️</span> Settings</a>
                 <!-- Logout is a POST form to prevent CSRF attacks on the logout action -->
                 <form th:action="@{/logout}" method="post" style="margin:0">
                     <button type="submit" class="nav-link"
@@ -217,7 +222,11 @@
                       th:text="${unreadMessages}"
                       th:attr="aria-label='${unreadMessages} unread messages'">0</span>
             </a>
+<<<<<<< HEAD
+            <a href="/profile/edit" class="btn btn-secondary btn-sm" title="Edit Profile">
+=======
             <a href="/profile" class="btn btn-secondary btn-sm">
+>>>>>>> 3a1dd3b029e53326ae0130b1a0a51f478b78b430
                 <span class="status-indicator online" th:attr="data-username=${currentUser?.username}"></span>
                 <span th:text="${currentUser?.fullName}">User</span>
             </a>

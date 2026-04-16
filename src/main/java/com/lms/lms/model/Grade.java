@@ -25,6 +25,7 @@ public class Grade {
     @Column(length = 200)
     private String description;
 
+    @Builder.Default
     @OneToMany(mappedBy = "grade", fetch = FetchType.LAZY)
     private List<User> students = new ArrayList<>();
 

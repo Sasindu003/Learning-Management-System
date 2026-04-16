@@ -30,11 +30,13 @@ public class ExamAttempt {
     private int totalMarks;
     private double percentage;
 
+    @Builder.Default
     private boolean completed = false;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    @Builder.Default
     @OneToMany(mappedBy = "attempt", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExamAnswer> answers = new ArrayList<>();
 

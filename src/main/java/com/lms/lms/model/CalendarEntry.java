@@ -8,27 +8,29 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(name = "events")
+@Table(name = "calendar_entries")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Event {
+public class CalendarEntry {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 200)
-    @NotBlank(message = "Event title is required")
+    @NotBlank(message = "Title is required")
     private String title;
 
     @Column(length = 1000)
     private String description;
 
     @Column(nullable = false)
-    private LocalDate eventDate;
+    private LocalDate startDate;
+
+    private LocalDate endDate; // null = same as startDate
 
     @Builder.Default
     private Boolean allDay = true;
@@ -37,27 +39,31 @@ public class Event {
     private String eventTime; // HH:mm, only used when allDay = false
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "entry_type_id")
     private CalendarEntryType entryType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    @Builder.Default
+    private boolean shared = false;
 
-    // Admin targeting: empty = visible to everyone
+    // For teachers: which grades can see this entry when shared
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "event_target_grades",
-            joinColumns = @JoinColumn(name = "event_id"),
+    @JoinTable(name = "calendar_entry_grades",
+            joinColumns = @JoinColumn(name = "entry_id"),
             inverseJoinColumns = @JoinColumn(name = "grade_id"))
-    private Set<Grade> targetGrades = new HashSet<>();
+    private Set<Grade> sharedGrades = new HashSet<>();
 
+    // For teachers: which subjects can see this entry when shared
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "event_target_subjects",
-            joinColumns = @JoinColumn(name = "event_id"),
+    @JoinTable(name = "calendar_entry_subjects",
+            joinColumns = @JoinColumn(name = "entry_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
-    private Set<Subject> targetSubjects = new HashSet<>();
+    private Set<Subject> sharedSubjects = new HashSet<>();
 
     private LocalDateTime createdAt;
 

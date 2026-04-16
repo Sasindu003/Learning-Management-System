@@ -37,6 +37,7 @@ public class AssignmentSubmission {
     @Column(length = 500)
     private String feedback;
 
+    @Builder.Default
     private boolean graded = false;
 
     private LocalDateTime submittedAt;
