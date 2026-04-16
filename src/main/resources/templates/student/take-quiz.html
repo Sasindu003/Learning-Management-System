@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Quiz — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar(${exam.title})}"></div>
+
+            <div class="quiz-timer" id="quiz-timer" th:data-duration="${exam.durationMinutes}"
+                th:text="${exam.durationMinutes} + ':00'">30:00</div>
+
+            <div class="glass-card mb-3">
+                <div class="flex-between">
+                    <div>
+                        <p class="text-muted"><span class="badge badge-primary" th:text="${exam.type}">QUIZ</span>
+                            · <span th:text="${exam.course.subject.name}">Subject</span>
+                            · Total: <strong th:text="${exam.totalMarks}">100</strong> marks</p>
+                    </div>
+                    <span class="badge badge-info" th:text="${#lists.size(questions)} + ' Questions'">0</span>
+                </div>
+            </div>
+
+            <form id="quiz-form" th:action="@{/student/quizzes/{id}/submit(id=${attempt.id})}" method="post">
+                <div th:each="q,iter : ${questions}" class="question-card">
+                    <h4><span class="badge badge-primary" th:text="'Q' + ${iter.count}">Q1</span>
+                        <span th:text="${q.questionText}" style="margin-left:8px">Question text</span>
+                        <small class="text-muted" th:text="'(' + ${q.marks} + ' marks)'"> (1 mark)</small>
+                    </h4>
+                    <div style="margin-top:12px">
+                        <label class="option-label"><input type="radio" th:name="'answer_' + ${q.id}" value="A">
+                            <span>A) <span th:text="${q.optionA}">Option A</span></span></label>
+                        <label class="option-label"><input type="radio" th:name="'answer_' + ${q.id}" value="B">
+                            <span>B) <span th:text="${q.optionB}">Option B</span></span></label>
+                        <label class="option-label"><input type="radio" th:name="'answer_' + ${q.id}" value="C">
+                            <span>C) <span th:text="${q.optionC}">Option C</span></span></label>
+                        <label class="option-label"><input type="radio" th:name="'answer_' + ${q.id}" value="D">
+                            <span>D) <span th:text="${q.optionD}">Option D</span></span></label>
+                    </div>
+                </div>
+
+                <div class="glass-card mt-3 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg"
+                        onclick="return confirm('Submit quiz? You cannot change answers after submission.')">
+                        ✅ Submit Quiz
+                    </button>
+                </div>
+            </form>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
