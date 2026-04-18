@@ -7,19 +7,20 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
 @Configuration
 public class CloudflareR2Config {
 
-    @Value("${cloudflare.r2.access.key}")
+    @Value("${r2.access.key}")
     private String accessKey;
 
-    @Value("${cloudflare.r2.secret.key}")
+    @Value("${r2.secret.key}")
     private String secretKey;
 
-    @Value("${cloudflare.r2.endpoint}")
+    @Value("${r2.endpoint}")
     private String endpoint;
 
     @Bean
@@ -31,6 +32,17 @@ public class CloudflareR2Config {
                 .region(Region.of("auto"))
                 .endpointOverride(URI.create(endpoint))
                 .forcePathStyle(true)
+                .build();
+    }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+
+        return S3Presigner.builder()
+                .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .region(Region.of("auto"))
+                .endpointOverride(URI.create(endpoint))
                 .build();
     }
 }

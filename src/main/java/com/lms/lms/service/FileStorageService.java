@@ -7,9 +7,14 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 
 @Service
@@ -17,11 +22,12 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
-    @Value("${cloudflare.r2.bucket.name}")
+    @Value("${r2.bucket.name}")
     private String bucketName;
 
-    @Value("${cloudflare.r2.endpoint}")
+    @Value("${r2.endpoint}")
     private String endpoint;
 
     public String store(MultipartFile file, String subDir) throws IOException {
@@ -50,8 +56,19 @@ public class FileStorageService {
 
     public String getPublicUrl(String filePath) {
         String key = filePath.startsWith("/") ? filePath.substring(1) : filePath;
-        String end = endpoint.endsWith("/") ? endpoint : endpoint + "/";
-        return end + bucketName + "/" + key;
+        
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofHours(1))
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
+        return presignedGetObjectRequest.url().toString();
     }
 
     public void delete(String filePath) {
