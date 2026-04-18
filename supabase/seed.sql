@@ -1,2 +1,0 @@
--- Seed data for your Supabase project
--- Add any initial SQL data you want to pre-populate here.
