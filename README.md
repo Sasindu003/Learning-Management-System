@@ -179,6 +179,35 @@ The application uses **H2 file-based database** with persistent storage:
 
 ---
 
+## ☁️ Using Supabase (Postgres)
+
+This project can run against **Supabase Postgres** using the `supabase` Spring profile.
+
+### 1) Create a Supabase project
+- In Supabase, create a new project and note your database connection details.
+
+### 2) Set environment variables
+Set these before running the app:
+
+- `SUPABASE_DB_JDBC_URL` (example)
+  - `jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`
+- `SUPABASE_DB_USERNAME`
+- `SUPABASE_DB_PASSWORD`
+
+### 3) Run with the Supabase profile
+Windows PowerShell:
+```powershell
+$env:SUPABASE_DB_JDBC_URL="jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require"
+$env:SUPABASE_DB_USERNAME="postgres"
+$env:SUPABASE_DB_PASSWORD="your_password"
+$env:SPRING_PROFILES_ACTIVE="supabase"
+.\mvnw spring-boot:run
+```
+
+### 4) Verify connectivity
+Open:
+- `http://localhost:8080/dev/db-ping` → should respond with `ok`
+
 ## 🔮 Future Features
 
 See [FUTURE_FEATURES.md](FUTURE_FEATURES.md) for planned enhancements including:
