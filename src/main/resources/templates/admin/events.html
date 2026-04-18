@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+    <main class="main-content" id="main-content">
+        <div th:replace="~{fragments/layout :: topbar('📢 School Events')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="data-grid" style="max-width:1000px;">
+
+            <!-- Create Form -->
+            <div class="glass-card">
+                <h3 class="mb-2">Broadcast New Event</h3>
+                <p style="color:#6b7280; font-size:14px; margin-bottom:16px;">
+                    Events appear on everyone's calendar. Use grade/subject targeting to limit visibility.
+                </p>
+                <form th:action="@{/admin/events/save}" method="post" data-validate id="event-form">
+                    <input type="hidden" name="id" id="event-id">
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" name="title" class="form-control" required placeholder="e.g. Mid-Term Exams Begin">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="Optional details..."></textarea>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                        <div class="form-group">
+                            <label class="form-label">Date *</label>
+                            <input type="date" name="eventDate" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select name="entryTypeId" class="form-control">
+                                <option value="">— No Type —</option>
+                                <option th:each="t : ${entryTypes}" th:value="${t.id}"
+                                        th:text="${t.icon + ' ' + t.name}">Type</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display:block;">
+                                <input type="checkbox" name="allDay" value="true" id="admin-allday" checked
+                                       onchange="toggleAdminTime(this)">
+                                All Day Event
+                            </label>
+                            <div id="admin-time-field" style="display:none; margin-top:8px;">
+                                <input type="time" name="eventTime" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Targeting -->
+                    <div style="border:1px solid rgba(0,0,0,0.08); border-radius:12px; padding:16px; margin-bottom:16px;">
+                        <p style="margin:0 0 12px; font-weight:600; font-size:14px;">🎯 Target Audience (empty = everyone)</p>
+                        <div style="display:grid; grid-template-columns:1fr; gap:20px;">
+                            <!-- Grades -->
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Target Grades</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="gradeMode" value="all" checked onclick="toggleTargetMode('Grade', 'all')"> All Grades</label>
+                                    <label class="radio-item"><input type="radio" name="gradeMode" value="selective" onclick="toggleTargetMode('Grade', 'selective')"> Selective</label>
+                                </div>
+                                <div id="grade-selection" class="selection-list-container" style="display:none;">
+                                    <div class="selection-header">
+                                        <span style="font-size:12px; font-weight:600;">Select Grades</span>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="selectAll('targetGradeIds', true)">Select All</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="selectAll('targetGradeIds', false)">Clear</button>
+                                    </div>
+                                    <div th:each="g : ${grades}" class="selection-item">
+                                        <input type="checkbox" name="targetGradeIds" th:value="${g.id}" class="grade-check">
+                                        <span th:text="${g.name}">Grade</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Subjects -->
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Target Subjects</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="subjectMode" value="all" checked onclick="toggleTargetMode('Subject', 'all')"> All Subjects</label>
+                                    <label class="radio-item"><input type="radio" name="subjectMode" value="selective" onclick="toggleTargetMode('Subject', 'selective')"> Selective</label>
+                                </div>
+                                <div id="subject-selection" class="selection-list-container" style="display:none;">
+                                    <div class="selection-header">
+                                        <span style="font-size:12px; font-weight:600;">Select Subjects</span>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="selectAll('targetSubjectIds', true)">Select All</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="selectAll('targetSubjectIds', false)">Clear</button>
+                                    </div>
+                                    <div th:each="s : ${subjects}" class="selection-item">
+                                        <input type="checkbox" name="targetSubjectIds" th:value="${s.id}" class="subject-check">
+                                        <span th:text="${s.name}">Subject</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Teachers -->
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Target Teachers</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="teacherMode" value="all" checked onclick="toggleTargetMode('Teacher', 'all')"> All Teachers</label>
+                                    <label class="radio-item"><input type="radio" name="teacherMode" value="selective" onclick="toggleTargetMode('Teacher', 'selective')"> Selective</label>
+                                </div>
+                                <div id="teacher-selection" class="selection-list-container" style="display:none;">
+                                    <div class="selection-header">
+                                        <span style="font-size:12px; font-weight:600;">Select Teachers</span>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="selectAll('targetTeacherIds', true)">Select All</button>
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="selectAll('targetTeacherIds', false)">Clear</button>
+                                    </div>
+                                    <div th:each="t : ${teachers}" class="selection-item">
+                                        <input type="checkbox" name="targetTeacherIds" th:value="${t.id}" class="teacher-check">
+                                        <span th:text="${t.fullName}">Teacher</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted" style="display:block; margin-top:8px;">
+                            Hold Ctrl/Cmd to select multiple. Intersection logic: users must match selected Grade <b>AND</b> Subject criteria (individual teachers are always included).
+                        </small>
+                    </div>
+
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <button type="submit" class="btn btn-primary" id="submit-btn">📢 Broadcast Event</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-edit" style="display:none;" onclick="resetEventForm()">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Events List -->
+            <div class="glass-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="margin:0;">All Events</h3>
+                </div>
+                <div th:if="${#lists.isEmpty(events)}" class="empty-state">No events yet.</div>
+                <div class="table-container" th:unless="${#lists.isEmpty(events)}">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Time</th>
+                                <th>Audience</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="e : ${events}">
+                                <td th:text="${#temporals.format(e.eventDate, 'MMM dd, yyyy')}">Date</td>
+                                <td><strong th:text="${e.title}">Title</strong></td>
+                                <td>
+                                    <span th:if="${e.entryType != null}"
+                                          th:text="${e.entryType.icon + ' ' + e.entryType.name}"
+                                          class="badge badge-info"></span>
+                                    <span th:unless="${e.entryType != null}" class="badge badge-secondary">General</span>
+                                </td>
+                                <td th:text="${e.allDay ? 'All Day' : (e.eventTime ?: 'All Day')}">Time</td>
+                                <td>
+                                    <div th:if="${e.targetGrades.isEmpty() and e.targetSubjects.isEmpty() and e.targetTeachers.isEmpty()}">
+                                        <span class="badge badge-success">Everyone</span>
+                                    </div>
+                                    <div th:unless="${e.targetGrades.isEmpty() and e.targetSubjects.isEmpty() and e.targetTeachers.isEmpty()}" style="font-size:11px; line-height:1.4;">
+                                        <div th:if="${!e.targetTeachers.isEmpty()}">
+                                            <strong>Teachers:</strong> 
+                                            <span th:each="t, iter : ${e.targetTeachers}" th:text="${t.fullName + (iter.last ? '' : ', ')}"></span>
+                                        </div>
+                                        <div th:if="${!e.targetGrades.isEmpty()}">
+                                            <strong>Grades:</strong> 
+                                            <span th:each="g, iter : ${e.targetGrades}" th:text="${g.name + (iter.last ? '' : ', ')}"></span>
+                                        </div>
+                                        <div th:if="${!e.targetSubjects.isEmpty()}">
+                                            <strong>Subjects:</strong> 
+                                            <span th:each="s, iter : ${e.targetSubjects}" th:text="${s.name + (iter.last ? '' : ', ')}"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="white-space:nowrap;">
+                                    <button class="btn btn-secondary btn-sm" th:onclick="'editEvent(' + ${e.id} + ')'">✏️ Edit</button>
+                                    <a th:href="@{/admin/events/delete/{id}(id=${e.id})}"
+                                       class="btn btn-danger btn-sm" data-confirm="Delete this event?">🗑 Delete</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <hr style="grid-column: 1 / -1; border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 20px 0;">
+
+            <!-- Event Types Management -->
+            <div class="glass-card">
+                <h3 class="mb-2">Manage Event Types</h3>
+                <p style="color:#6b7280; font-size:14px; margin-bottom:16px;">
+                    Define categories for calendar entries. These determine the icons and colors shown on the calendar.
+                </p>
+                <form th:action="@{/admin/event-types/save}" method="post" data-validate id="type-form">
+                    <input type="hidden" name="id" id="edit-id" value="">
+                    <div style="display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:end;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Type Name *</label>
+                            <input type="text" name="name" id="edit-name" class="form-control"
+                                   placeholder="e.g. Study Session, Exam, Holiday" required>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Color</label>
+                            <input type="color" name="color" id="edit-color" class="form-control"
+                                   value="#6366f1" style="width:60px; height:42px; padding:4px; cursor:pointer;">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Icon (Emoji)</label>
+                            <input type="text" name="icon" id="edit-icon" class="form-control"
+                                   value="📅" maxlength="4" style="width:64px; text-align:center; font-size:22px;">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top:16px;">
+                        <button type="submit" class="btn btn-primary" id="save-type-btn">Create Type</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetTypeForm()" id="cancel-type-btn" style="display:none;">Cancel Edit</button>
+                    </div>
+                </form>
+
+                <div class="table-container" th:unless="${#lists.isEmpty(eventTypes)}" style="margin-top:24px;">
+                    <table style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Preview</th>
+                                <th>Name</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="t : ${eventTypes}">
+                                <td>
+                                    <span th:text="${t.icon + ' ' + t.name}"
+                                          th:style="|background:${t.color}; padding:4px 12px; border-radius:100px; font-size:12px; font-weight:600; color:white;|">
+                                    </span>
+                                </td>
+                                <td th:text="${t.name}">Name</td>
+                                <td style="text-align:right;">
+                                    <button class="btn btn-secondary btn-sm"
+                                            th:onclick="|editType(${t.id}, '${t.name}', '${t.color}', '${t.icon}')|">
+                                        ✏️ Edit
+                                    </button>
+                                    <a th:href="@{/admin/event-types/delete/{id}(id=${t.id})}"
+                                       class="btn btn-danger btn-sm" data-confirm="Delete this event type?">
+                                        🗑 Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+<script>
+    function toggleAdminTime(cb) {
+        document.getElementById('admin-time-field').style.display = cb.checked ? 'none' : 'block';
+    }
+
+    function toggleTargetMode(type, mode) {
+        const container = document.getElementById(type.toLowerCase() + '-selection');
+        container.style.display = mode === 'all' ? 'none' : 'block';
+        if (mode === 'all') {
+            selectAll('target' + type + 'Ids', false);
+        }
+    }
+
+    function selectAll(name, checked) {
+        document.getElementsByName(name).forEach(cb => cb.checked = checked);
+    }
+
+    function editEvent(id) {
+        fetch('/admin/events/edit/' + id)
+            .then(res => res.json())
+            .then(data => {
+                resetEventForm();
+                document.getElementById('event-id').value = data.id;
+                document.getElementsByName('title')[0].value = data.title;
+                document.getElementsByName('description')[0].value = data.description || '';
+                document.getElementsByName('eventDate')[0].value = data.eventDate;
+                
+                const allDayCb = document.getElementById('admin-allday');
+                allDayCb.checked = data.allDay;
+                toggleAdminTime(allDayCb);
+                if (!data.allDay) {
+                    document.getElementsByName('eventTime')[0].value = data.eventTime || '';
+                }
+
+                document.getElementsByName('entryTypeId')[0].value = data.entryTypeId || '';
+
+                // Restore targeting
+                restoreTargeting('grade', data.targetGradeIds);
+                restoreTargeting('subject', data.targetSubjectIds);
+                restoreTargeting('teacher', data.targetTeacherIds);
+
+                document.getElementById('submit-btn').innerText = '💾 Update Event';
+                document.getElementById('cancel-edit').style.display = 'inline-block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+    }
+
+    function restoreTargeting(type, ids) {
+        if (ids && ids.length > 0) {
+            document.querySelector(`input[name="${type}Mode"][value="selective"]`).checked = true;
+            toggleTargetMode(type.charAt(0).toUpperCase() + type.slice(1), 'selective');
+            document.getElementsByName('target' + type.charAt(0).toUpperCase() + type.slice(1) + 'Ids').forEach(cb => {
+                cb.checked = ids.includes(parseInt(cb.value));
+            });
+        } else {
+            document.querySelector(`input[name="${type}Mode"][value="all"]`).checked = true;
+            toggleTargetMode(type.charAt(0).toUpperCase() + type.slice(1), 'all');
+        }
+    }
+
+    function resetEventForm() {
+        document.getElementById('event-id').value = '';
+        document.getElementById('event-form').reset();
+        document.getElementById('submit-btn').innerText = '📢 Broadcast Event';
+        document.getElementById('cancel-edit').style.display = 'none';
+        document.getElementById('admin-time-field').style.display = 'none';
+        
+        // Reset modes and visibility
+        ['Grade', 'Subject', 'Teacher'].forEach(type => {
+            toggleTargetMode(type, 'all');
+        });
+    }
+
+    // Event Types Logic
+    function editType(id, name, color, icon) {
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-name').value = name;
+        document.getElementById('edit-color').value = color;
+        document.getElementById('edit-icon').value = icon;
+        document.getElementById('save-type-btn').textContent = 'Update Type';
+        document.getElementById('cancel-type-btn').style.display = 'inline-block';
+        document.getElementById('edit-name').focus();
+        window.scrollTo({ top: document.getElementById('type-form').offsetTop - 100, behavior: 'smooth' });
+    }
+
+    function resetTypeForm() {
+        document.getElementById('edit-id').value = '';
+        document.getElementById('type-form').reset();
+        document.getElementById('save-type-btn').textContent = 'Create Type';
+        document.getElementById('cancel-type-btn').style.display = 'none';
+    }
+</script>
+</body>
+</html>

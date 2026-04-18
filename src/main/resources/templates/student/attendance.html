@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('My Attendance')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="glass-card">
+                <h3 class="mb-2">📋 Attendance Summary</h3>
+                <div th:if="${#maps.isEmpty(attendanceStats)}" class="empty-state">
+                    <div class="icon">📋</div>
+                    <h4>No attendance records yet</h4>
+                    <p>Your attendance will appear here once marked by your teachers.</p>
+                </div>
+                <div th:unless="${#maps.isEmpty(attendanceStats)}">
+                    <div th:each="entry : ${attendanceStats}" class="announcement-card" style="margin-bottom:16px">
+                        <h5 th:text="${entry.key}">Course Name</h5>
+                        <div class="inline-flex" style="flex-wrap:wrap;gap:10px;margin-top:10px">
+                            <div style="text-align:center">
+                                <span class="badge badge-success" style="font-size:18px;padding:8px 16px"
+                                    th:text="${entry.value['PRESENT'] ?: 0}">0</span>
+                                <div class="text-muted" style="font-size:11px;margin-top:4px">Present</div>
+                            </div>
+                            <div style="text-align:center">
+                                <span class="badge badge-danger" style="font-size:18px;padding:8px 16px"
+                                    th:text="${entry.value['ABSENT'] ?: 0}">0</span>
+                                <div class="text-muted" style="font-size:11px;margin-top:4px">Absent</div>
+                            </div>
+                            <div style="text-align:center">
+                                <span class="badge badge-warning" style="font-size:18px;padding:8px 16px"
+                                    th:text="${entry.value['LATE'] ?: 0}">0</span>
+                                <div class="text-muted" style="font-size:11px;margin-top:4px">Late</div>
+                            </div>
+                            <div style="text-align:center">
+                                <span class="badge badge-info" style="font-size:18px;padding:8px 16px"
+                                    th:text="${entry.value['EXCUSED'] ?: 0}">0</span>
+                                <div class="text-muted" style="font-size:11px;margin-top:4px">Excused</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>

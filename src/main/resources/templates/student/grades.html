@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Grades — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('My Grades')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" th:text="${#numbers.formatDecimal(overallAverage, 1, 1)} + '%'">0%</div>
+                    <div class="stat-label">Overall Average</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value" th:text="${#lists.size(grades)}">0</div>
+                    <div class="stat-label">Records Shown</div>
+                </div>
+            </div>
+
+            <div class="glass-card mb-3">
+                <form action="/student/grades" method="get" class="inline-flex" style="gap:10px;align-items:end;flex-wrap:wrap">
+                    
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Subject</label>
+                        <select name="subject" class="form-control" onchange="this.form.submit()">
+                            <option value="">All Subjects</option>
+                            <option th:each="sub : ${allSubjects}" th:value="${sub}" th:text="${sub}" th:selected="${sub == selectedSubject}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Course</label>
+                        <select name="course" class="form-control" onchange="this.form.submit()">
+                            <option value="">All Courses</option>
+                            <option th:each="crs : ${allCourses}" th:value="${crs}" th:text="${crs}" th:selected="${crs == selectedCourse}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Term</label>
+                        <select name="term" class="form-control" onchange="this.form.submit()">
+                            <option value="">All Terms</option>
+                            <option th:each="t : ${allTerms}" th:value="${t}" th:text="${t}" th:selected="${t == selectedTerm}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0; display:flex; gap:10px; align-items:center; height:38px;">
+                        <span class="text-sm font-medium">Type:</span>
+                        <label><input type="radio" name="type" value="All" onchange="this.form.submit()" th:checked="${selectedType == 'All'}"> All</label>
+                        <label><input type="radio" name="type" value="Assignment" onchange="this.form.submit()" th:checked="${selectedType == 'Assignment'}"> Assignment</label>
+                        <label><input type="radio" name="type" value="Quiz" onchange="this.form.submit()" th:checked="${selectedType == 'Quiz'}"> Quiz</label>
+                        <label><input type="radio" name="type" value="Manual" onchange="this.form.submit()" th:checked="${selectedType == 'Manual'}"> Manual</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm" style="margin-left:auto">Filter</button>
+                    <a href="/student/grades" class="btn btn-secondary btn-sm"
+                        th:if="${selectedTerm != null or selectedSubject != null or selectedCourse != null or selectedType != 'All'}">Clear</a>
+                </form>
+            </div>
+
+            <div class="glass-card">
+                <h3 class="mb-2">📋 Grade Report
+                    <span th:if="${selectedTerm != null}" class="badge badge-info" th:text="'Term: ' + ${selectedTerm}"></span>
+                </h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+                                <th>Type</th>
+                                <th>Subject</th>
+                                <th>Course</th>
+                                <th>Assessment Name</th>
+                                <th>Marks</th>
+                                <th>Percentage</th>
+                                <th>Grade</th>
+                                <th>Term</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="g : ${grades}">
+                                <td><input type="checkbox" class="report-checkbox" name="reportItem"></td>
+                                <td><span class="badge" th:classappend="${g.type == 'Assignment' ? 'badge-info' : (g.type == 'Quiz' ? 'badge-warning' : 'badge-secondary')}" th:text="${g.type}">Type</span></td>
+                                <td><span class="badge badge-primary" th:text="${g.subjectName}">Subject</span></td>
+                                <td th:text="${g.courseTitle}">Course</td>
+                                <td th:text="${g.itemName}">Assessment</td>
+                                <td th:text="${#numbers.formatDecimal(g.marks, 1, 1)} + '/' + ${#numbers.formatDecimal(g.maxMarks, 1, 1)}">Marks</td>
+                                <td>
+                                    <div class="progress-bar"
+                                        style="width:80px;display:inline-block;vertical-align:middle">
+                                        <div class="progress-fill" th:style="'width:' + ${g.percentage} + '%'"></div>
+                                    </div>
+                                    <span th:text="${#numbers.formatDecimal(g.percentage, 1, 1)} + '%'">0%</span>
+                                </td>
+                                <td><span class="badge"
+                                        th:classappend="${g.percentage >= 50} ? 'badge-success' : 'badge-danger'"
+                                        th:text="${g.letterGrade}">A</span></td>
+                                <td th:text="${g.term}">Term</td>
+                                <td class="text-muted" th:text="${g.remarks ?: '-'}">Remarks</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${#lists.isEmpty(grades)}" class="empty-state">
+                    <div class="icon">📊</div>
+                    <h4>No grades recorded yet</h4>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+    <script>
+        function toggleAll(source) {
+            checkboxes = document.querySelectorAll('.report-checkbox');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
+</body>
+
+</html>

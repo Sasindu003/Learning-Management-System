@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar(${course.title})}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+            <div class="glass-card mb-3">
+                <p><span class="badge badge-primary" th:text="${course.subject.name}">Subject</span>
+                    <span class="badge badge-info" th:text="${course.grade.name}">Grade</span>
+                </p>
+                <p th:text="${course.description}" class="text-muted">Description</p>
+                <p style="font-size:13px">Instructor: <strong th:text="${course.teacher.fullName}">Teacher</strong></p>
+            </div>
+            <div class="data-grid">
+                <div class="glass-card">
+                    <h3 class="mb-2">📄 Course Materials</h3>
+                    <div th:each="m : ${materials}" class="announcement-card">
+                        <div class="flex-between">
+                            <div>
+                                <h5 th:text="${m.title}">Title</h5>
+                                <p class="text-muted" style="font-size:12px"
+                                    th:text="${m.externalUrl != null} ? 'Web Link' : (${m.fileName != null} ? ${m.fileName} : 'No file')">file</p>
+                            </div>
+                            <div class="inline-flex">
+                                <a th:if="${m.externalUrl != null}" th:href="${m.externalUrl}" target="_blank" class="btn btn-info btn-sm">Open Link</a>
+                                <a th:if="${m.filePath != null}" th:href="@{/files/view/material/{id}(id=${m.id})}" target="_blank" class="btn btn-info btn-sm">Open File</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(materials)}" class="empty-state">
+                        <p>No materials yet</p>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3 class="mb-2">📝 Assignments</h3>
+                    <div th:each="a : ${assignments}" class="announcement-card">
+                        <div class="flex-between">
+                            <h5 th:text="${a.title}">Title</h5>
+                            <div class="inline-flex">
+                                <a th:if="${a.attachmentPath != null}" th:href="@{/files/view/assignment/{id}(id=${a.id})}" target="_blank" class="btn btn-info btn-sm">Open File</a>
+                                <span th:if="${submitted[a.id]}" class="badge badge-success">Submitted ✓</span>
+                                <a th:unless="${submitted[a.id]}"
+                                    th:href="@{/student/assignments/{id}/submit(id=${a.id})}"
+                                    class="btn btn-primary btn-sm">Submit</a>
+                            </div>
+                        </div>
+                        <div class="meta">Due: <span
+                                th:text="${#temporals.format(a.dueDate, 'MMM dd, yyyy HH:mm')}">Date</span>
+                            · <span th:text="${a.maxMarks} + ' marks'">100</span>
+                            <span th:if="${a.overdue}" class="badge badge-danger">Overdue</span>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(assignments)}" class="empty-state">
+                        <p>No assignments</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card mt-3">
+                <h3 class="mb-2">❓ Exams & Quizzes</h3>
+                <div th:each="e : ${exams}" class="announcement-card" th:if="${e.published}">
+                    <div class="flex-between">
+                        <h5 th:text="${e.title}">Exam</h5>
+                        <a th:href="@{/student/quizzes/{id}/take(id=${e.id})}" class="btn btn-warning btn-sm">Take
+                            Quiz</a>
+                    </div>
+                    <div class="meta"><span class="badge badge-primary" th:text="${e.type}">QUIZ</span>
+                        · <span th:text="${e.durationMinutes} + ' min'">30</span>
+                        · <span th:text="${e.totalMarks} + ' marks'">100</span></div>
+                </div>
+            <div class="glass-card mt-3">
+                <div class="flex-between mb-3">
+                    <h3 class="mb-0">📓 Private Study Notes</h3>
+                    <div id="note-status" class="text-muted" style="font-size:12px"></div>
+                </div>
+                <div class="form-group mb-2">
+                    <textarea id="study-note" class="form-control" 
+                        placeholder="Keep your study plan, important points, or reminders here. Only you can see this." 
+                        rows="6" style="background: rgba(255, 255, 255, 0.5);"></textarea>
+                </div>
+                <div class="flex-between">
+                    <small class="text-muted">Auto-saves as you type...</small>
+                    <button id="save-note-btn" class="btn btn-primary btn-sm">Save Now</button>
+                </div>
+            </div>
+
+            <div id="discussion-board" class="glass-card mt-3">
+                <h3 class="mb-3">💬 Course Discussions</h3>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="empty-state">Loading discussions...</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea id="chat-textarea" class="form-control" placeholder="Type your problem or question here..." rows="1"></textarea>
+                        <button id="send-chat-btn" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const courseId = /*[[${course.id}]]*/ 0;
+        const currentUserId = /*[[${currentUser.id}]]*/ 0;
+        let stompClient = null;
+
+        function connect() {
+            const socket = new SockJS('/ws-chat');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null; 
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/topic/course/' + courseId, function (response) {
+                    const data = JSON.parse(response.body);
+                    handleChatAction(data);
+                });
+            });
+        }
+
+        function handleChatAction(data) {
+            if (data.type === 'NEW_MESSAGE') {
+                appendMessage(data.message);
+            } else if (data.type === 'DELETE_MESSAGE') {
+                const el = document.getElementById('msg-' + data.messageId);
+                if (el) el.remove();
+            } else if (data.type === 'UPDATE_MESSAGE') {
+                const el = document.getElementById('content-' + data.message.id);
+                if (el) el.textContent = data.message.content;
+            }
+        }
+
+        function appendMessage(msg) {
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages.querySelector('.empty-state')) {
+                chatMessages.innerHTML = '';
+            }
+
+            const isMine = msg.senderId === currentUserId;
+            const msgHtml = `
+                <div class="message-bubble ${isMine ? 'mine' : 'theirs'}" id="msg-${msg.id}">
+                    <div class="message-header">
+                        <span class="sender">${msg.senderName} (${msg.senderRole})</span>
+                        <span class="time">${new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div class="content" id="content-${msg.id}">${msg.content}</div>
+                    ${isMine ? `
+                        <div class="message-actions">
+                            <button onclick="editMessage(${msg.id})">Edit</button>
+                            <button onclick="deleteMessage(${msg.id})">Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', msgHtml);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMsg() {
+            const textarea = document.getElementById('chat-textarea');
+            const content = textarea.value.trim();
+            if (content && stompClient) {
+                stompClient.send("/app/course/" + courseId + "/chat", {}, JSON.stringify({ content: content }));
+                textarea.value = '';
+            }
+        }
+
+        window.deleteMessage = function(id) {
+            if (confirm('Delete this message?')) {
+                fetch('/api/discussions/' + id, { method: 'DELETE' });
+            }
+        }
+
+        window.editMessage = function(id) {
+            const el = document.getElementById('content-' + id);
+            const oldContent = el.textContent;
+            const newContent = prompt('Edit your message:', oldContent);
+            if (newContent && newContent !== oldContent) {
+                fetch('/api/discussions/' + id, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newContent })
+                });
+            }
+        }
+
+        // Load existing messages
+        fetch('/api/courses/' + courseId + '/discussions')
+            .then(r => r.json())
+            .then(data => {
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML = '';
+                data.forEach(appendMessage);
+            });
+
+        document.getElementById('send-chat-btn').addEventListener('click', sendMsg);
+        document.getElementById('chat-textarea').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMsg();
+            }
+        });
+
+        // --- Private Study Notes Logic ---
+        const studyNoteEl = document.getElementById('study-note');
+        const noteStatusEl = document.getElementById('note-status');
+        const saveNoteBtn = document.getElementById('save-note-btn');
+        let autoSaveTimeout = null;
+
+        function loadNote() {
+            fetch('/api/notes/course/' + courseId)
+                .then(r => r.text())
+                .then(content => {
+                    studyNoteEl.value = content;
+                });
+        }
+
+        function saveNote() {
+            const content = studyNoteEl.value;
+            noteStatusEl.textContent = 'Saving...';
+            
+            fetch('/api/notes/course/' + courseId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: content })
+            })
+            .then(r => {
+                if (r.ok) {
+                    noteStatusEl.textContent = 'Saved ✓';
+                    setTimeout(() => {
+                        if (noteStatusEl.textContent === 'Saved ✓') {
+                            noteStatusEl.textContent = '';
+                        }
+                    }, 3000);
+                } else {
+                    noteStatusEl.textContent = 'Error saving';
+                }
+            })
+            .catch(() => {
+                noteStatusEl.textContent = 'Connection error';
+            });
+        }
+
+        studyNoteEl.addEventListener('input', () => {
+            noteStatusEl.textContent = 'Typing...';
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(saveNote, 2000);
+        });
+
+        saveNoteBtn.addEventListener('click', () => {
+            clearTimeout(autoSaveTimeout);
+            saveNote();
+        });
+
+        loadNote();
+        // --- End Private Study Notes Logic ---
+
+        connect();
+        /*]]>*/
+    </script>
+</body>
+
+</html>

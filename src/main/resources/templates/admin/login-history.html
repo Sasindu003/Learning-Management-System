@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login History — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .log-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        .log-table tr {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .log-table tr:hover {
+            transform: scale(1.005);
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .log-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #4b5563;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+        }
+        .log-table td {
+            padding: 16px;
+            vertical-align: middle;
+        }
+        .log-table tr td:first-child { border-radius: 12px 0 0 12px; }
+        .log-table tr td:last-child { border-radius: 0 12px 12px 0; }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-success { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+        .status-failure { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+
+        .ip-address { font-family: monospace; color: #6b7280; font-size: 13px; }
+        .ua-text { color: #9ca3af; font-size: 12px; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    </style>
+</head>
+<body>
+<div class="app-layout">
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+    <main class="main-content" id="main-content">
+        <div th:replace="~{fragments/layout :: topbar('🔐 Login History Log')}"></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="data-grid">
+            <div class="glass-card full-width">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <div>
+                        <h2 style="margin: 0;">Access Logs</h2>
+                        <p style="color: #6b7280; font-size: 14px; margin-top: 4px;">Monitor all authentication attempts across the system.</p>
+                    </div>
+                    <form th:action="@{/admin/login-history/clear}" method="post" onsubmit="return confirm('Attention: This will permanently delete ALL login history logs. Are you sure?');">
+                        <button type="submit" class="btn btn-danger" style="display: flex; align-items: center; gap: 8px;">
+                            <span>🗑️</span> Clear All Logs
+                        </button>
+                    </form>
+                </div>
+
+                <div th:if="${#lists.isEmpty(logs)}" class="empty-state">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📂</div>
+                    <h3>No login records found</h3>
+                    <p>Authentication events will appear here once users attempt to log in.</p>
+                </div>
+
+                <div class="table-container" th:unless="${#lists.isEmpty(logs)}">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>User / Attempt</th>
+                                <th>Status</th>
+                                <th>IP & Location</th>
+                                <th>Device Info</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="log : ${logs}">
+                                <td>
+                                    <div style="font-weight: 500;" th:text="${#temporals.format(log.timestamp, 'MMM dd, yyyy')}">Date</div>
+                                    <div style="font-size: 12px; color: #9ca3af;" th:text="${#temporals.format(log.timestamp, 'HH:mm:ss')}">Time</div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div class="avatar-small">
+                                            <span th:text="${#strings.substring(log.username, 0, 1).toUpperCase()}">U</span>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600;" th:text="${log.user != null ? log.user.fullName : log.username}">Name</div>
+                                            <div style="font-size: 12px; color: #6b7280;" th:text="${'@' + log.username}">@username</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:class="|status-badge ${log.success ? 'status-success' : 'status-failure'}|"
+                                          th:text="${log.success ? '✓ Success' : '✗ Failed'}">Status</span>
+                                    <div th:if="${!log.success}" th:text="${log.failureReason}" 
+                                         style="font-size: 11px; color: #ef4444; margin-top: 4px; max-width: 150px; line-height: 1.2;">Reason</div>
+                                </td>
+                                <td>
+                                    <div class="ip-address" th:text="${log.ipAddress}">127.0.0.1</div>
+                                </td>
+                                <td>
+                                    <div class="ua-text" th:title="${log.userAgent}" th:text="${log.userAgent}">Browser Info</div>
+                                </td>
+                                <td>
+                                    <form th:action="@{/admin/login-history/delete/{id}(id=${log.id})}" method="post">
+                                        <button type="submit" class="btn btn-secondary btn-sm" title="Delete Log">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
