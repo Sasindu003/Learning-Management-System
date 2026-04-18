@@ -40,7 +40,7 @@ public class CalendarController {
     @GetMapping("/calendar")
     public String calendarPage(Model model, Authentication auth) {
         User user = userService.findByUsername(auth.getName()).orElseThrow();
-        model.addAttribute("entryTypes", calendarEntryTypeService.findAll());
+        model.addAttribute("entryTypes", calendarEntryTypeService.findVisibleTypes(user));
 
         // For teachers — pass their assigned grades & subjects for sharing UI
         if (user.getRole() == User.Role.TEACHER) {
@@ -197,6 +197,54 @@ public class CalendarController {
         }
 
         calendarEntryService.delete(id);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    // ===== REST: Entry Types Management =====
+    @PostMapping("/api/calendar/entry-types")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveEntryType(
+            @RequestBody Map<String, Object> body, Authentication auth) {
+        try {
+            User user = userService.findByUsername(auth.getName()).orElseThrow();
+            
+            Long id = body.get("id") != null ? Long.parseLong(body.get("id").toString()) : null;
+            CalendarEntryType type;
+            
+            if (id != null) {
+                type = calendarEntryTypeService.findById(id).orElseThrow();
+                if (type.getOwner() == null || !type.getOwner().getId().equals(user.getId())) {
+                    return ResponseEntity.status(403).body(Map.of("success", false, "error", "Not your entry type"));
+                }
+            } else {
+                type = new CalendarEntryType();
+                type.setOwner(user);
+            }
+            
+            type.setName((String) body.get("name"));
+            type.setColor((String) body.get("color"));
+            type.setIcon((String) body.get("icon"));
+            
+            CalendarEntryType saved = calendarEntryTypeService.save(type);
+            return ResponseEntity.ok(Map.of("success", true, "id", saved.getId()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/api/calendar/entry-types/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> deleteEntryType(
+            @PathVariable("id") Long id, Authentication auth) {
+        User user = userService.findByUsername(auth.getName()).orElseThrow();
+        CalendarEntryType type = calendarEntryTypeService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Type not found"));
+
+        if (type.getOwner() == null || !type.getOwner().getId().equals(user.getId())) {
+            return ResponseEntity.status(403).body(Map.of("success", false, "error", "Cannot delete global or other users' types"));
+        }
+
+        calendarEntryTypeService.delete(id);
         return ResponseEntity.ok(Map.of("success", true));
     }
 }

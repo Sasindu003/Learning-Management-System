@@ -66,6 +66,16 @@
         .time-toggle.visible { display: block; }
         .share-section { display: none; }
         .share-section.visible { display: block; }
+        
+        .type-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .type-item:last-child { border: none; }
+        .type-actions { margin-left: auto; display: flex; gap: 8px; }
     </style>
 </head>
 
@@ -132,12 +142,15 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Type</label>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                <label class="form-label" style="margin:0;">Type</label>
+                <button type="button" onclick="openTypesModal()" style="background:none; border:none; color:var(--accent); font-size:12px; cursor:pointer; text-decoration:underline;">Manage Types</button>
+            </div>
             <select id="entry-type" class="form-control">
                 <option value="">— No Type —</option>
                 <option th:each="t : ${entryTypes}" th:value="${t.id}"
                         th:text="${t.icon + ' ' + t.name}"
-                        th:attr="data-color=${t.color}">Type</option>
+                        th:attr="data-color=${t.color}, data-icon=${t.icon}, data-personal=${t.owner != null}">Type</option>
             </select>
         </div>
 
@@ -199,6 +212,42 @@
         <div style="display:flex; gap:12px; margin-top:20px;">
             <button class="btn btn-primary" onclick="saveEntry()" style="flex:1;">Save Entry</button>
             <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Types Modal -->
+<div class="modal-overlay" id="types-modal">
+    <div class="modal-box" style="max-width: 440px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0;">Personal Entry Types</h3>
+            <button onclick="closeTypesModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;">✕</button>
+        </div>
+
+        <div id="types-list" style="margin-bottom: 20px; max-height: 200px; overflow-y: auto;">
+            <!-- Rendered via JS -->
+        </div>
+
+        <div style="background: #f9fafb; padding: 16px; border-radius: 12px; border: 1px solid #e5e7eb;">
+            <h4 id="type-form-title" style="margin: 0 0 12px; font-size: 14px;">Add New Type</h4>
+            <input type="hidden" id="type-id">
+            <div class="form-group">
+                <input type="text" id="type-name" class="form-control" placeholder="Name (e.g. Study Session)">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div class="form-group">
+                    <label class="form-label" style="font-size: 12px;">Icon</label>
+                    <input type="text" id="type-icon" class="form-control" placeholder="📅" value="📅">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="font-size: 12px;">Color</label>
+                    <input type="color" id="type-color" class="form-control" value="#6366f1" style="height: 42px; padding: 4px;">
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary btn-sm" onclick="saveType()" style="flex: 1;">Save Type</button>
+                <button id="cancel-type-edit" class="btn btn-secondary btn-sm" onclick="resetTypeForm()" style="display: none;">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
@@ -348,6 +397,98 @@
     function getCsrf() {
         const meta = document.querySelector('meta[name="_csrf"]');
         return meta ? meta.getAttribute('content') : '';
+    }
+
+    // ===== Types Modal =====
+    function openTypesModal() {
+        document.getElementById('types-modal').classList.add('show');
+        renderTypesList();
+    }
+    function closeTypesModal() {
+        document.getElementById('types-modal').classList.remove('show');
+        resetTypeForm();
+    }
+
+    function renderTypesList() {
+        const list = document.getElementById('types-list');
+        const select = document.getElementById('entry-type');
+        const personalTypes = [...select.options].filter(o => o.getAttribute('data-personal') === 'true');
+
+        if (personalTypes.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#9ca3af; font-size:13px; padding:10px;">No personal types yet.</p>';
+            return;
+        }
+
+        list.innerHTML = personalTypes.map(o => `
+            <div class="type-item">
+                <span style="font-size:18px;">${o.getAttribute('data-icon') || ''}</span>
+                <div>
+                    <div style="font-weight:600; font-size:14px;">${o.text.substring((o.getAttribute('data-icon')||'').length).trim()}</div>
+                    <div style="width:20px; height:4px; border-radius:2px; background:${o.getAttribute('data-color')}"></div>
+                </div>
+                <div class="type-actions">
+                    <button onclick="editType('${o.value}')" style="background:none; border:none; cursor:pointer;">✏️</button>
+                    <button onclick="deleteType('${o.value}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function editType(id) {
+        const select = document.getElementById('entry-type');
+        const opt = [...select.options].find(o => o.value === id);
+        if (!opt) return;
+
+        document.getElementById('type-id').value = id;
+        document.getElementById('type-name').value = opt.text.substring((opt.getAttribute('data-icon')||'').length).trim();
+        document.getElementById('type-icon').value = opt.getAttribute('data-icon') || '📅';
+        document.getElementById('type-color').value = opt.getAttribute('data-color') || '#6366f1';
+        
+        document.getElementById('type-form-title').textContent = 'Edit Type';
+        document.getElementById('cancel-type-edit').style.display = 'inline-block';
+    }
+
+    function resetTypeForm() {
+        document.getElementById('type-id').value = '';
+        document.getElementById('type-name').value = '';
+        document.getElementById('type-icon').value = '📅';
+        document.getElementById('type-color').value = '#6366f1';
+        document.getElementById('type-form-title').textContent = 'Add New Type';
+        document.getElementById('cancel-type-edit').style.display = 'none';
+    }
+
+    function saveType() {
+        const name = document.getElementById('type-name').value.trim();
+        if (!name) return alert('Name is required');
+        
+        const body = {
+            id: document.getElementById('type-id').value || null,
+            name: name,
+            icon: document.getElementById('type-icon').value || '📅',
+            color: document.getElementById('type-color').value
+        };
+
+        fetch('/api/calendar/entry-types', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrf() },
+            body: JSON.stringify(body)
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                // For simplicity, reload or manually update the select
+                location.reload(); 
+            } else alert('Error: ' + data.error);
+        });
+    }
+
+    function deleteType(id) {
+        if (!confirm('Delete this entry type? Events using this will lose their categorization.')) return;
+        fetch(`/api/calendar/entry-types/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': getCsrf() }
+        }).then(r => r.json()).then(data => {
+            if (data.success) location.reload();
+            else alert('Error: ' + data.error);
+        });
     }
 
     // Close panel on outside click

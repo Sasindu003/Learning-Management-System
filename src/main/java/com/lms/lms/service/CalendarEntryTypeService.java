@@ -17,6 +17,10 @@ public class CalendarEntryTypeService {
         return repository.findAll();
     }
 
+    public List<CalendarEntryType> findVisibleTypes(User owner) {
+        return repository.findByOwnerIsNullOrOwner(owner);
+    }
+
     public Optional<CalendarEntryType> findById(Long id) {
         return repository.findById(id);
     }
