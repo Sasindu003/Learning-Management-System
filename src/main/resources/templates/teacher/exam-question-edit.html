@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Question — EduFlow LMS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div class="app-layout">
+        <div th:replace="~{fragments/layout :: sidebar}"></div>
+        <main class="main-content">
+            <div th:replace="~{fragments/layout :: topbar('Edit Question')}"></div>
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <div class="glass-card mb-3">
+                <div class="flex-between">
+                    <div>
+                        <h3 th:text="${exam.title}">Exam</h3>
+                        <p class="text-muted" th:text="'Editing Question for ' + ${exam.title}">Info</p>
+                    </div>
+                    <a th:href="@{/teacher/exams/{id}/questions(id=${exam.id})}" class="btn btn-secondary">
+                        <span class="icon">⬅️</span> Back to Questions
+                    </a>
+                </div>
+            </div>
+
+            <div class="glass-card max-width-800">
+                <h3 class="mb-2">✏️ Update Question</h3>
+                <form th:action="@{/teacher/exams/questions/update}" method="post" data-validate>
+                    <input type="hidden" name="id" th:value="${question.id}">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Question Text *</label>
+                        <textarea name="questionText" class="form-control" rows="4" required
+                            th:text="${question.questionText}" placeholder="Enter question text"></textarea>
+                    </div>
+
+                    <div class="data-grid">
+                        <div class="form-group">
+                            <label class="form-label">Option A *</label>
+                            <input type="text" name="optionA" class="form-control" th:value="${question.optionA}" required placeholder="Option A">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Option B *</label>
+                            <input type="text" name="optionB" class="form-control" th:value="${question.optionB}" required placeholder="Option B">
+                        </div>
+                    </div>
+
+                    <div class="data-grid">
+                        <div class="form-group">
+                            <label class="form-label">Option C *</label>
+                            <input type="text" name="optionC" class="form-control" th:value="${question.optionC}" required placeholder="Option C">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Option D *</label>
+                            <input type="text" name="optionD" class="form-control" th:value="${question.optionD}" required placeholder="Option D">
+                        </div>
+                    </div>
+
+                    <div class="data-grid">
+                        <div class="form-group">
+                            <label class="form-label">Correct Answer *</label>
+                            <select name="correctAnswer" class="form-control" required>
+                                <option value="A" th:selected="${question.correctAnswer == 'A'}">A</option>
+                                <option value="B" th:selected="${question.correctAnswer == 'B'}">B</option>
+                                <option value="C" th:selected="${question.correctAnswer == 'C'}">C</option>
+                                <option value="D" th:selected="${question.correctAnswer == 'D'}">D</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Marks</label>
+                            <input type="number" name="marks" class="form-control" th:value="${question.marks}" min="1">
+                        </div>
+                    </div>
+
+                    <div class="flex-end mt-2">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="icon">💾</span> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+
+</html>
