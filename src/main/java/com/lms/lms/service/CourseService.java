@@ -80,7 +80,7 @@ public class CourseService {
         for (String path : filesToDelete) {
             try {
                 fileStorageService.delete(path);
-            } catch (java.io.IOException e) {
+            } catch (Exception e) {
                 // Log error but continue
                 System.err.println("Failed to delete file: " + path + ". Error: " + e.getMessage());
             }
