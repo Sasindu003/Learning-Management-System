@@ -436,6 +436,17 @@ public class AdminController {
         return "admin/courses";
     }
 
+    @PostMapping("/courses/delete/{id}")
+    public String deleteCourse(@PathVariable("id") Long id, RedirectAttributes ra) {
+        try {
+            courseService.deleteCourse(id);
+            ra.addFlashAttribute("success", "Course and all associated content deleted successfully!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error deleting course: " + e.getMessage());
+        }
+        return "redirect:/admin/courses";
+    }
+
     // === Timetable Management ===
     @GetMapping("/timetable")
     public String timetable(Model model) {

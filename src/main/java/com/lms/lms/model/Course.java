@@ -51,6 +51,10 @@ public class Course {
     private List<CourseDiscussion> discussions = new ArrayList<>();
 
     @Builder.Default
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Exam> exams = new ArrayList<>();
+
+    @Builder.Default
     private boolean active = true;
 
     private LocalDateTime createdAt;

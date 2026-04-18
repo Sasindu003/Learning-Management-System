@@ -31,6 +31,7 @@
                                 <th>Grade</th>
                                 <th>Teacher</th>
                                 <th>Status</th>
+                                <th style="width: 80px">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,6 +43,12 @@
                                 <td><span class="badge"
                                         th:classappend="${c.active} ? 'badge-success' : 'badge-danger'"
                                         th:text="${c.active} ? 'Active' : 'Inactive'">Status</span></td>
+                                <td>
+                                    <form th:action="@{/admin/courses/delete/{id}(id=${c.id})}" method="post"
+                                        onsubmit="return confirm('Are you sure you want to delete this course? All materials, assignments, and files will be permanently removed.');">
+                                        <button type="submit" class="btn-icon btn-danger" title="Delete Course">🗑️</button>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

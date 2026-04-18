@@ -14,6 +14,7 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseMaterialRepository materialRepository;
+    private final FileStorageService fileStorageService;
 
     public List<Course> findAll() {
         return courseRepository.findAll();
@@ -41,8 +42,49 @@ public class CourseService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        courseRepository.deleteById(id);
+    public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
+
+        // Collect files to delete
+        List<String> filesToDelete = new ArrayList<>();
+
+        // Materials files
+        if (course.getMaterials() != null) {
+            for (CourseMaterial material : course.getMaterials()) {
+                if (material.getFilePath() != null) {
+                    filesToDelete.add(material.getFilePath());
+                }
+            }
+        }
+
+        // Assignment attachments and submissions
+        if (course.getAssignments() != null) {
+            for (Assignment assignment : course.getAssignments()) {
+                if (assignment.getAttachmentPath() != null) {
+                    filesToDelete.add(assignment.getAttachmentPath());
+                }
+                if (assignment.getSubmissions() != null) {
+                    for (AssignmentSubmission submission : assignment.getSubmissions()) {
+                        if (submission.getFilePath() != null) {
+                            filesToDelete.add(submission.getFilePath());
+                        }
+                    }
+                }
+            }
+        }
+
+        // Delete records from DB (cascaded)
+        courseRepository.delete(course);
+
+        // Delete physical files
+        for (String path : filesToDelete) {
+            try {
+                fileStorageService.delete(path);
+            } catch (java.io.IOException e) {
+                // Log error but continue
+                System.err.println("Failed to delete file: " + path + ". Error: " + e.getMessage());
+            }
+        }
     }
 
     // Materials
