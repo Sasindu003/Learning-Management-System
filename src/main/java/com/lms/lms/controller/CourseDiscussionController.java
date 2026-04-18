@@ -40,24 +40,6 @@ public class CourseDiscussionController {
         return discussionService.getDiscussionsByCourse(courseId).stream().map(this::mapToResponse).toList();
     }
 
-    @GetMapping("/api/discussions/recent")
-    public List<Map<String, Object>> getRecentDiscussions(Authentication auth) {
-        if (auth == null) return List.of();
-        User user = userService.findByUsername(auth.getName()).orElseThrow();
-        List<CourseDiscussion> recent = discussionService.getRecentDiscussionsForUser(user, 5);
-        return recent.stream().map(d -> {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put("id", d.getId());
-            map.put("courseId", d.getCourse().getId());
-            map.put("courseTitle", d.getCourse().getTitle());
-            map.put("senderName", d.getSender().getFullName());
-            map.put("senderUsername", d.getSender().getUsername());
-            map.put("content", d.getContent().length() > 50 ? d.getContent().substring(0, 47) + "..." : d.getContent());
-            map.put("createdAt", d.getCreatedAt());
-            return map;
-        }).toList();
-    }
-
     @MessageMapping("/course/{courseId}/chat")
     public void handleChatMessage(@DestinationVariable Long courseId, @Payload ChatMessagePayload payload, Authentication auth) {
         if (auth == null) return;

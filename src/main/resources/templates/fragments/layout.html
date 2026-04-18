@@ -193,14 +193,25 @@
             <h2 th:text="${title}">Page Title</h2>
         </div>
         <div class="topbar-actions">
-            <!-- Notification bell with accessible label -->
-            <a href="/notifications" class="notification-bell" aria-label="Notifications">
-                <span aria-hidden="true">🔔</span>
-                <span id="notif-count" class="count"
-                      th:if="${unreadNotifications > 0}"
-                      th:text="${unreadNotifications}"
-                      th:attr="aria-label='${unreadNotifications} unread notifications'">0</span>
-            </a>
+            <!-- Notifications Popup -->
+            <div class="notification-dropdown">
+                <button class="notification-bell" id="notif-icon" aria-label="Notifications">
+                    <span aria-hidden="true">🔔</span>
+                    <span id="notif-count" class="count"
+                          th:if="${unreadNotifications > 0}"
+                          th:text="${unreadNotifications}">0</span>
+                </button>
+                <div class="dropdown-popup" id="notif-popup">
+                    <div class="dropdown-header">Notifications</div>
+                    <div id="notif-list" class="dropdown-list">
+                        <div class="loading-state">Loading...</div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="/notifications">View All</a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Discussion icon with popup -->
             <div class="notification-dropdown">
                 <button class="notification-bell" id="discussion-icon" aria-label="Course Discussions">
@@ -209,18 +220,30 @@
                 <div class="dropdown-popup" id="discussion-popup">
                     <div class="dropdown-header">Recent Discussions</div>
                     <div id="discussion-list" class="dropdown-list">
-                        <div class="empty-state">No recent discussions</div>
+                        <div class="loading-state">Loading...</div>
                     </div>
                 </div>
             </div>
-            <!-- Messages icon with accessible label -->
-            <a href="/messages" class="notification-bell" aria-label="Messages">
-                <span aria-hidden="true">✉️</span>
-                <span id="msg-count" class="count"
-                      th:if="${unreadMessages > 0}"
-                      th:text="${unreadMessages}"
-                      th:attr="aria-label='${unreadMessages} unread messages'">0</span>
-            </a>
+
+            <!-- Messages Popup -->
+            <div class="notification-dropdown">
+                <button class="notification-bell" id="msg-icon" aria-label="Messages">
+                    <span aria-hidden="true">✉️</span>
+                    <span id="msg-count" class="count"
+                          th:if="${unreadMessages > 0}"
+                          th:text="${unreadMessages}">0</span>
+                </button>
+                <div class="dropdown-popup" id="msg-popup">
+                    <div class="dropdown-header">Messages</div>
+                    <div id="msg-list" class="dropdown-list">
+                        <div class="loading-state">Loading...</div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="/messages">Open Inbox</a>
+                    </div>
+                </div>
+            </div>
+
             <a href="/profile/edit" class="btn btn-secondary btn-sm" title="Edit Profile">
                 <span class="status-indicator online" th:attr="data-username=${currentUser?.username}"></span>
                 <span th:text="${currentUser?.fullName}">User</span>

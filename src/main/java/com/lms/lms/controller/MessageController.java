@@ -94,4 +94,22 @@ public class MessageController {
         model.addAttribute("replyContent", "\n\n--- Original Message ---\n" + original.getContent());
         return "messages/compose";
     }
+
+    @GetMapping("/api/recent")
+    @ResponseBody
+    public List<Map<String, Object>> getRecentMessages(Authentication auth) {
+        User user = userService.findByUsername(auth.getName()).orElseThrow();
+        return messageService.getInbox(user).stream()
+                .limit(5)
+                .map(m -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", m.getId());
+                    map.put("subject", m.getSubject());
+                    map.put("sender", m.getSender().getFullName());
+                    map.put("sentAt", m.getSentAt());
+                    map.put("read", m.isRead());
+                    return map;
+                })
+                .toList();
+    }
 }

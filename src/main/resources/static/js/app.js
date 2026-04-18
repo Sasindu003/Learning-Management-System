@@ -64,20 +64,88 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     });
 
-    // === Discussion Dropdown ===
-    const discIcon = document.getElementById('discussion-icon');
-    const discPopup = document.getElementById('discussion-popup');
+    // === Top Bar Popups (Notifications, Discussions, Messages) ===
+    initTopBarPopups();
 
-    if (discIcon && discPopup) {
-        discIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            discPopup.classList.toggle('active');
+    function initTopBarPopups() {
+        const popups = [
+            { icon: 'notif-icon', popup: 'notif-popup', list: 'notif-list', api: '/api/notifications/recent', type: 'notif' },
+            { icon: 'discussion-icon', popup: 'discussion-popup', list: 'discussion-list', api: '/api/discussions/recent', type: 'disc' },
+            { icon: 'msg-icon', popup: 'msg-popup', list: 'msg-list', api: '/messages/api/recent', type: 'msg' }
+        ];
+
+        popups.forEach(p => {
+            const iconEl = document.getElementById(p.icon);
+            const popupEl = document.getElementById(p.popup);
+            const listEl = document.getElementById(p.list);
+
+            if (iconEl && popupEl) {
+                iconEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isActive = popupEl.classList.contains('active');
+                    
+                    // Close all popups first
+                    document.querySelectorAll('.dropdown-popup').forEach(el => el.classList.remove('active'));
+                    
+                    if (!isActive) {
+                        popupEl.classList.add('active');
+                        fetchPopupData(p.api, listEl, p.type);
+                    }
+                });
+            }
         });
 
         document.addEventListener('click', (e) => {
-            if (discPopup.classList.contains('active') && !discPopup.contains(e.target)) {
-                discPopup.classList.remove('active');
-            }
+            document.querySelectorAll('.dropdown-popup').forEach(popup => {
+                if (popup.classList.contains('active') && !popup.contains(e.target)) {
+                    popup.classList.remove('active');
+                }
+            });
         });
+    }
+
+    async function fetchPopupData(apiUrl, container, type) {
+        container.innerHTML = '<div class="loading-state">Loading...</div>';
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            renderPopupList(data, container, type);
+        } catch (error) {
+            console.error('Error fetching popup data:', error);
+            container.innerHTML = '<div class="empty-state">Failed to load content</div>';
+        }
+    }
+
+    function renderPopupList(data, container, type) {
+        if (!data || data.length === 0) {
+            container.innerHTML = `<div class="empty-state">No recent ${type === 'notif' ? 'notifications' : type === 'msg' ? 'messages' : 'activity'}</div>`;
+            return;
+        }
+
+        container.innerHTML = data.map(item => {
+            if (type === 'notif') {
+                return `
+                    <a href="${item.link || '#'}" class="dropdown-item ${item.read ? '' : 'unread'}">
+                        <span class="msg-snippet">${item.message}</span>
+                        <span class="msg-meta">${new Date(item.createdAt).toLocaleString()}</span>
+                    </a>`;
+            } else if (type === 'msg') {
+                return `
+                    <a href="/messages/${item.id}" class="dropdown-item ${item.read ? '' : 'unread'}">
+                        <span class="course-name">${item.sender}</span>
+                        <span class="msg-snippet">${item.subject}</span>
+                        <span class="msg-meta">${new Date(item.sentAt).toLocaleString()}</span>
+                    </a>`;
+            } else if (type === 'disc') {
+                return `
+                    <a href="/teacher/courses/${item.courseId}" class="dropdown-item">
+                        <span class="course-name">${item.courseName}</span>
+                        <span class="msg-snippet"><strong>${item.senderName}:</strong> ${item.lastMessage}</span>
+                        <span class="msg-meta">${new Date(item.sentAt).toLocaleString()}</span>
+                    </a>`;
+            }
+            return '';
+        }).join('');
     }
 });

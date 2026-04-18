@@ -50,4 +50,11 @@ public class NotificationController {
         counts.put("messages", messageService.getUnreadCount(user));
         return counts;
     }
+
+    @GetMapping("/api/notifications/recent")
+    @ResponseBody
+    public List<Notification> getRecentNotifications(Authentication auth) {
+        User user = userService.findByUsername(auth.getName()).orElseThrow();
+        return notificationService.getRecentNotifications(user);
+    }
 }

@@ -1547,6 +1547,41 @@ tbody tr:last-child td {
     color: var(--text-muted);
 }
 
+.dropdown-item.unread {
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.dropdown-item.unread .msg-snippet {
+    font-weight: 600;
+}
+
+.dropdown-footer {
+    padding: 10px;
+    text-align: center;
+    border-top: 1px solid var(--glass-border);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.dropdown-footer a {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.dropdown-footer a:hover {
+    color: var(--primary-dark);
+}
+
+.loading-state {
+    padding: 32px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+}
+
 /* ===== Real-time Chat Box ===== */
 .chat-container {
     display: flex;

@@ -19,15 +19,6 @@ public class ProfileController {
     private final MessageService messageService;
     private final FileStorageService fileStorageService;
 
-    @ModelAttribute
-    public void addCommonAttributes(Model model, Authentication auth) {
-        User user = userService.findByUsername(auth.getName()).orElse(null);
-        model.addAttribute("currentUser", user);
-        if (user != null) {
-            model.addAttribute("unreadNotifications", notificationService.getUnreadCount(user));
-            model.addAttribute("unreadMessages", messageService.getUnreadCount(user));
-        }
-    }
 
     @GetMapping("")
     public String viewProfile(Model model, Authentication auth) {

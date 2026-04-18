@@ -155,7 +155,7 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
-					<jvmArguments>-Xmx512m</jvmArguments>
+					<jvmArguments>-Xmx512m -XX:+UseSerialGC -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=64m -XX:+TieredCompilation -XX:TieredStopAtLevel=1</jvmArguments>
 				</configuration>
 			</plugin>
 		</plugins>

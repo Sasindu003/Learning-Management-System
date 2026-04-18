@@ -29,15 +29,6 @@ public class StudentController {
     private final AnnouncementService announcementService;
     private final TimetableService timetableService;
 
-    @ModelAttribute
-    public void addCommonAttributes(Model model, Authentication auth) {
-        User user = userService.findByUsername(auth.getName()).orElse(null);
-        model.addAttribute("currentUser", user);
-        if (user != null) {
-            model.addAttribute("unreadNotifications", notificationService.getUnreadCount(user));
-            model.addAttribute("unreadMessages", messageService.getUnreadCount(user));
-        }
-    }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, Authentication auth) {

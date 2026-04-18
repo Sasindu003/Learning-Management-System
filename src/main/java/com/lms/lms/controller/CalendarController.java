@@ -25,16 +25,6 @@ public class CalendarController {
     private final NotificationService notificationService;
     private final MessageService messageService;
 
-    @ModelAttribute
-    public void addCommonAttributes(Model model, Authentication auth) {
-        if (auth == null) return;
-        User user = userService.findByUsername(auth.getName()).orElse(null);
-        model.addAttribute("currentUser", user);
-        if (user != null) {
-            model.addAttribute("unreadNotifications", notificationService.getUnreadCount(user));
-            model.addAttribute("unreadMessages", messageService.getUnreadCount(user));
-        }
-    }
 
     // ===== Page =====
     @GetMapping("/calendar")

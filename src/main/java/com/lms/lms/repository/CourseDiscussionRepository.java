@@ -14,4 +14,9 @@ public interface CourseDiscussionRepository extends JpaRepository<CourseDiscussi
         List<com.lms.lms.model.Course> courses, 
         org.springframework.data.domain.Pageable pageable
     );
+
+    List<CourseDiscussion> findByCourseInAndCreatedAtAfterOrderByCreatedAtDesc(
+        List<com.lms.lms.model.Course> courses, 
+        java.time.LocalDateTime after
+    );
 }
