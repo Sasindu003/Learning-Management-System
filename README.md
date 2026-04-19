@@ -51,8 +51,10 @@
 ### 📊 Additional Features
 *   **Academic Calendar**: Interactive calendar with classes, exams, and events.
 *   **Timetable Management**: Structured weekly schedules for students and teachers.
+*   **Activity Logging**: Track user actions across the system for audit purposes.
 *   **Login History**: Track recent login activity for security audit.
 *   **Dark Mode**: Theme toggle for comfortable viewing.
+*   **REST APIs**: JSON endpoints for discussions and study notes (AJAX support).
 
 ---
 
@@ -112,7 +114,7 @@ mvn spring-boot:run
 ```
 
 #### Option 3: Build and Run JAR
-```bash
+```bash@
 mvn clean package
 java -jar target/lms-0.0.1-SNAPSHOT.jar
 ```
@@ -140,19 +142,24 @@ src/main/java/com/lms/lms/
 ├── component/          # Utility components (PasswordHasher)
 ├── config/             # Security, WebSocket, and app configuration
 ├── controller/         # Web controllers
-│   ├── AdminController.java         # Admin dashboard & user management
-│   ├── AuthController.java          # Authentication
-│   ├── CalendarController.java      # Academic calendar & events
-│   ├── CourseDiscussionController.java  # Discussion forums
-│   ├── FileController.java          # File upload/download
-│   ├── MessageController.java       # Real-time messaging
-│   ├── NotificationController.java  # User notifications
-│   ├── PortfolioController.java       # Teacher portfolios
-│   ├── ProfileController.java         # User profiles
-│   ├── StudentController.java         # Student portal
-│   └── TeacherController.java         # Teacher portal
+│   ├── AdminController.java              # Admin dashboard & user management
+│   ├── AuthController.java               # Authentication
+│   ├── CalendarController.java           # Academic calendar & events
+│   ├── CourseActionController.java       # Course enrollment actions
+│   ├── CourseDiscussionController.java   # Discussion forums
+│   ├── FileController.java               # File upload/download
+│   ├── GlobalControllerAdvice.java       # Global model attributes
+│   ├── MessageController.java            # Real-time messaging
+│   ├── NotificationController.java       # User notifications
+│   ├── PortfolioController.java          # Teacher portfolios
+│   ├── ProfileController.java            # User profiles
+│   ├── StudentController.java            # Student portal
+│   ├── TeacherController.java            # Teacher portal
+│   └── api/                              # REST API endpoints
+│       ├── CourseDiscussionRestController.java
+│       └── StudyNoteApiController.java
 ├── dto/                # Data Transfer Objects
-├── model/              # 24 Entity classes (User, Course, Assignment, etc.)
+├── model/              # 26 Entity classes (User, Course, Assignment, ActivityLog, etc.)
 ├── repository/         # Spring Data JPA repositories
 └── service/            # Business logic layer
 
@@ -178,6 +185,12 @@ The application uses **H2 file-based database** with persistent storage:
 - All data is retained after application restart
 
 ---
+
+## 📝 Changelog
+
+See [Changelog](http://localhost:8080/changelog) for version history and recent updates.
+
+Current version: **v1.1.0**
 
 ## 🔮 Future Features
 
