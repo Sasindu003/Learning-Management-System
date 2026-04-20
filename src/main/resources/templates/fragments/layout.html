@@ -131,7 +131,7 @@
                           th:text="${unreadNotifications}"
                           th:attr="aria-label='${unreadNotifications} unread notifications'"></span>
                 </a>
-                <a th:href="@{'/portfolio/@' + ${currentUser.username}}" target="_blank" class="nav-link"><span class="icon" aria-hidden="true">🌐</span> My Portfolio</a>
+                <a th:href="@{'/portfolio/@' + ${currentUser.username}}" target="_blank" class="nav-link"><span class="icon" aria-hidden="true">🌐</span> My Profile</a>
                 <a href="/profile/edit" class="nav-link"><span class="icon" aria-hidden="true">⚙️</span> Settings</a>
                 <!-- Logout is a POST form to prevent CSRF attacks on the logout action -->
                 <form th:action="@{/logout}" method="post" style="margin:0">
