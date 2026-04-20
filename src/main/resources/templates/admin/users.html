@@ -140,6 +140,46 @@
         </main>
     </div>
     <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // First, fetch initial online users
+            fetch('/api/users/online')
+                .then(res => res.json())
+                .then(onlineUsers => {
+                    const indicators = document.querySelectorAll('.status-indicator');
+                    indicators.forEach(indicator => {
+                        const username = indicator.getAttribute('data-username');
+                        if (onlineUsers.includes(username)) {
+                            indicator.classList.add('online');
+                        } else {
+                            indicator.classList.remove('online');
+                        }
+                    });
+                })
+                .catch(err => console.error('Failed to fetch initial online user status:', err));
+
+            // Setup WebSocket for real-time updates
+            if (typeof SockJS !== 'undefined' && typeof Stomp !== 'undefined') {
+                const socket = new SockJS('/ws-chat');
+                const stompClient = Stomp.over(socket);
+                stompClient.debug = null; // Disable debug logging
+                
+                stompClient.connect({}, function (frame) {
+                    stompClient.subscribe('/topic/users/status', function (message) {
+                        const data = JSON.parse(message.body);
+                        const indicators = document.querySelectorAll('.status-indicator[data-username="' + data.username + '"]');
+                        indicators.forEach(indicator => {
+                            if (data.status === 'ONLINE') {
+                                indicator.classList.add('online');
+                            } else {
+                                indicator.classList.remove('online');
+                            }
+                        });
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
