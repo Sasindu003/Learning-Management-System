@@ -404,6 +404,13 @@ public class AdminController {
         term.setStartDate(startDate);
         term.setEndDate(endDate);
         term.setActive(active);
+
+        List<String> errors = termService.validate(term);
+        if (!errors.isEmpty()) {
+            ra.addFlashAttribute("error", String.join(" | ", errors));
+            return "redirect:/admin/terms";
+        }
+
         termService.save(term);
         ra.addFlashAttribute("success", id != null ? "Term updated!" : "Term saved!");
         return "redirect:/admin/terms";

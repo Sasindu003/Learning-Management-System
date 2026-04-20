@@ -42,4 +42,26 @@ public class AcademicTermService {
     public void delete(Long id) {
         termRepository.deleteById(id);
     }
+
+    public List<String> validate(AcademicTerm term) {
+        List<String> errors = new ArrayList<>();
+
+        if (term.getStartDate() == null || term.getEndDate() == null) {
+            errors.add("Start and end dates are required.");
+            return errors;
+        }
+
+        if (term.getEndDate().isBefore(term.getStartDate())) {
+            errors.add("End date must be after or equal to start date.");
+        }
+
+        List<AcademicTerm> overlapping = termRepository.findOverlapping(term.getId(), term.getStartDate(), term.getEndDate());
+        if (!overlapping.isEmpty()) {
+            AcademicTerm first = overlapping.get(0);
+            errors.add(String.format("Term period overlaps with '%s' (%s to %s)",
+                first.getName(), first.getStartDate(), first.getEndDate()));
+        }
+
+        return errors;
+    }
 }
