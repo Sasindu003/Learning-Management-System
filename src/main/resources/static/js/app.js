@@ -160,4 +160,42 @@ document.addEventListener('DOMContentLoaded', () => {
             return '';
         }).join('');
     }
+
+    // === Global WebSockets for Unread Counts ===
+    initGlobalWebSockets();
+
+    function initGlobalWebSockets() {
+        const username = document.getElementById('current-username')?.value;
+        if (!username || typeof SockJS === 'undefined') return;
+
+        const socket = new SockJS('/ws-chat');
+        const stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, () => {
+            // Subscribe to notification counts
+            stompClient.subscribe('/user/topic/notifications/unread-count', (message) => {
+                updateBadge('notif-count', parseInt(message.body));
+            });
+
+            // Subscribe to message counts
+            stompClient.subscribe('/user/topic/messages/unread-count', (message) => {
+                updateBadge('msg-count', parseInt(message.body));
+            });
+        });
+    }
+
+    function updateBadge(id, count) {
+        const badge = document.getElementById(id);
+        if (!badge) return;
+        
+        badge.textContent = count;
+        if (count > 0) {
+            badge.classList.remove('hidden');
+            badge.style.transform = 'scale(1.2)';
+            setTimeout(() => badge.style.transform = 'scale(1)', 200);
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
 });

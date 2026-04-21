@@ -21,7 +21,6 @@ public class ProfileController {
     private final UserSessionService userSessionService;
     private final LoginLogService loginLogService;
 
-
     @GetMapping("")
     public String viewProfile(Model model, Authentication auth) {
         User user = userService.findByUsername(auth.getName()).orElseThrow();
@@ -82,20 +81,22 @@ public class ProfileController {
             ra.addFlashAttribute("error", "New passwords do not match!");
             return "redirect:/profile/edit";
         }
-        
+
         // Password strength validation: 8+ chars, at least one letter and one number
         if (newPass.length() < 8 || !newPass.matches(".*[a-zA-Z].*") || !newPass.matches(".*\\d.*")) {
-            ra.addFlashAttribute("error", "Password must be at least 8 characters and contain both letters and numbers!");
+            ra.addFlashAttribute("error",
+                    "Password must be at least 8 characters and contain both letters and numbers!");
             return "redirect:/profile/edit";
         }
-        
+
         userService.updatePassword(user.getId(), newPass);
         ra.addFlashAttribute("success", "Password changed successfully!");
         return "redirect:/profile";
     }
 
     @PostMapping("/sessions/revoke/{sessionId}")
-    public String revokeSession(@PathVariable("sessionId") String sessionId, Authentication auth, RedirectAttributes ra) {
+    public String revokeSession(@PathVariable("sessionId") String sessionId, Authentication auth,
+            RedirectAttributes ra) {
         userSessionService.revokeSession(sessionId);
         ra.addFlashAttribute("success", "Session revoked.");
         return "redirect:/profile/edit";

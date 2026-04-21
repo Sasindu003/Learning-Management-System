@@ -13,6 +13,12 @@ import java.util.*;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
+
+    private void broadcastCount(User user) {
+        long count = getUnreadCount(user);
+        messagingTemplate.convertAndSendToUser(user.getUsername(), "/topic/notifications/unread-count", count);
+    }
 
     public List<Notification> getRecentNotifications(User user) {
         return notificationRepository.findTop10ByUserOrderByCreatedAtDesc(user);
@@ -34,7 +40,9 @@ public class NotificationService {
                 .link(link)
                 .type(type)
                 .build();
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+        broadcastCount(user);
+        return saved;
     }
 
     @Transactional
@@ -42,6 +50,7 @@ public class NotificationService {
         notificationRepository.findById(id).ifPresent(n -> {
             n.setRead(true);
             notificationRepository.save(n);
+            broadcastCount(n.getUser());
         });
     }
 
@@ -50,5 +59,6 @@ public class NotificationService {
         List<Notification> unread = notificationRepository.findByUserAndReadFalse(user);
         unread.forEach(n -> n.setRead(true));
         notificationRepository.saveAll(unread);
+        broadcastCount(user);
     }
 }

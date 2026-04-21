@@ -199,7 +199,7 @@
                 <button class="notification-bell" id="notif-icon" aria-label="Notifications">
                     <span aria-hidden="true">🔔</span>
                     <span id="notif-count" class="count"
-                          th:if="${unreadNotifications > 0}"
+                          th:classappend="${unreadNotifications == 0} ? 'hidden' : ''"
                           th:text="${unreadNotifications}">0</span>
                 </button>
                 <div class="dropdown-popup" id="notif-popup">
@@ -231,7 +231,7 @@
                 <button class="notification-bell" id="msg-icon" aria-label="Messages">
                     <span aria-hidden="true">✉️</span>
                     <span id="msg-count" class="count"
-                          th:if="${unreadMessages > 0}"
+                          th:classappend="${unreadMessages == 0} ? 'hidden' : ''"
                           th:text="${unreadMessages}">0</span>
                 </button>
                 <div class="dropdown-popup" id="msg-popup">
@@ -249,6 +249,11 @@
                 <span class="status-indicator online" th:attr="data-username=${currentUser?.username}"></span>
                 <span th:text="${currentUser?.fullName}">User</span>
             </a>
+            <!-- Hidden username for WebSocket subscription -->
+            <input type="hidden" id="current-username" th:value="${currentUser?.username}">
+            <!-- Global WebSocket Libraries -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
         </div>
     </div>
 

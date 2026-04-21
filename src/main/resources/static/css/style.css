@@ -711,19 +711,28 @@ tbody tr:last-child td {
 
 .notification-bell .count {
     position: absolute;
-    top: -6px;
-    right: -8px;
-    background: var(--danger);
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
     color: white;
     font-size: 10px;
-    font-weight: 700;
-    width: 18px;
+    font-weight: bold;
+    min-width: 18px;
     height: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: pulse 2s infinite;
+    border: 2px solid var(--white);
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    transition: var(--transition);
+}
+
+.notification-bell .count.hidden,
+.notification-bell .count:empty,
+.notification-bell .count[data-count="0"] {
+    display: none !important;
 }
 
 @keyframes pulse {
