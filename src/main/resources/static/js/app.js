@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (iconEl && textEl) {
             // Trigger animation
             themeToggle.classList.add('switching');
-            setTimeout(() => themeToggle.classList.remove('switching'), 500);
+            setTimeout(() => themeToggle.classList.remove('switching'), 600);
 
             iconEl.textContent = theme === 'light' ? '🌓' : '☀️';
             textEl.textContent = theme === 'light' ? 'Light' : 'Dark';
