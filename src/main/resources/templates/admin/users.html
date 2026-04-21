@@ -60,7 +60,7 @@
                                         th:text="${t.enabled} ? 'Active' : 'Disabled'">Active</span></td>
                                 <td>
                                     <div class="inline-flex">
-                                        <form th:action="@{/admin/users/login-as/{id}(id=${t.id})}" method="post" style="display:inline">
+                                        <form th:action="@{/admin/users/login-as/{id}(id=${t.id})}" method="post" style="display:inline" target="_blank">
                                             <button type="submit" class="btn btn-success btn-sm" title="Quick login as this user" aria-label="Quick login as teacher">🔑 Login</button>
                                         </form>
                                         <a th:href="@{/admin/users/edit/{id}(id=${t.id})}"
@@ -114,7 +114,7 @@
                                         th:text="${s.enabled} ? 'Active' : 'Disabled'">Active</span></td>
                                 <td>
                                     <div class="inline-flex">
-                                        <form th:action="@{/admin/users/login-as/{id}(id=${s.id})}" method="post" style="display:inline">
+                                        <form th:action="@{/admin/users/login-as/{id}(id=${s.id})}" method="post" style="display:inline" target="_blank">
                                             <button type="submit" class="btn btn-success btn-sm" title="Quick login as this user" aria-label="Quick login as student">🔑 Login</button>
                                         </form>
                                         <a th:href="@{/admin/users/edit/{id}(id=${s.id})}"

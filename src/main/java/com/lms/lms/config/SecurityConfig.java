@@ -70,6 +70,14 @@ public class SecurityConfig {
                                                 .sessionRegistry(sessionRegistry()))
                                 .csrf(csrf -> csrf
                                                 .ignoringRequestMatchers("/h2-console/**", "/api/**"))
+                                .exceptionHandling(exception -> exception
+                                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                                        if (request.getRequestURI().startsWith("/admin")) {
+                                                                response.sendRedirect("/login?logout=true");
+                                                        } else {
+                                                                response.sendRedirect("/dashboard");
+                                                        }
+                                                }))
                                 .headers(headers -> headers
                                                 .frameOptions(frame -> frame.sameOrigin()));
 
