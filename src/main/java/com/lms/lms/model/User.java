@@ -60,6 +60,11 @@ public class User {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @Builder.Default
+    private int failedLoginAttempts = 0;
+
+    private LocalDateTime lockedUntil;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grade_id")
     private Grade grade; // for students

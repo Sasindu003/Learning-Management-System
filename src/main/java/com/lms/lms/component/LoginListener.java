@@ -4,6 +4,7 @@ import com.lms.lms.model.LoginLog;
 import com.lms.lms.model.User;
 import com.lms.lms.service.LoginLogService;
 import com.lms.lms.service.UserService;
+import com.lms.lms.service.UserSessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -19,12 +20,23 @@ public class LoginListener {
 
     private final LoginLogService loginLogService;
     private final UserService userService;
+    private final UserSessionService userSessionService;
 
     @EventListener
     public void onSuccess(AuthenticationSuccessEvent event) {
         String username = event.getAuthentication().getName();
         User user = userService.findByUsername(username).orElse(null);
         
+        if (user != null) {
+            userService.resetFailedLogins(username);
+            
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                String sessionId = attributes.getSessionId();
+                userSessionService.createOrUpdateSession(user, sessionId, getClientIp(), getUserAgent());
+            }
+        }
+
         LoginLog log = LoginLog.builder()
                 .user(user)
                 .username(username)
@@ -40,6 +52,8 @@ public class LoginListener {
     public void onFailure(AbstractAuthenticationFailureEvent event) {
         String username = event.getAuthentication().getName();
         User user = userService.findByUsername(username).orElse(null);
+
+        userService.incrementFailedLogins(username);
 
         LoginLog log = LoginLog.builder()
                 .user(user)

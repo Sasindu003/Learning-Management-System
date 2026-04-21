@@ -31,4 +31,8 @@ public class LoginLogService {
     public void clearAllLogs() {
         loginLogRepository.deleteAll();
     }
+
+    public List<LoginLog> findRecentByUser(com.lms.lms.model.User user, int count) {
+        return loginLogRepository.findFirst5ByUserOrderByTimestampDesc(user);
+    }
 }

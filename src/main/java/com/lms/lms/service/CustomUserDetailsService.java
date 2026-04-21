@@ -19,15 +19,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        if (!user.isEnabled()) {
-            throw new UsernameNotFoundException("User account is disabled: " + username);
-        }
+        boolean accountNonLocked = user.getLockedUntil() == null || 
+                                   user.getLockedUntil().isBefore(java.time.LocalDateTime.now());
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
                 user.isEnabled(),
-                true, true, true,
+                true, true, accountNonLocked,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
     }
 }

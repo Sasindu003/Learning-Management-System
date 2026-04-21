@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -114,5 +115,34 @@ public class UserService {
             managedUser.getPinnedCourses().add(course);
         }
         userRepository.save(managedUser);
+    }
+
+    @Transactional
+    public void incrementFailedLogins(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
+            if (user.getFailedLoginAttempts() >= 5) {
+                user.setLockedUntil(LocalDateTime.now().plusMinutes(15));
+            }
+            userRepository.save(user);
+        });
+    }
+
+    @Transactional
+    public void resetFailedLogins(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            user.setFailedLoginAttempts(0);
+            user.setLockedUntil(null);
+            userRepository.save(user);
+        });
+    }
+
+    public boolean isLocked(User user) {
+        if (user.getLockedUntil() == null) return false;
+        if (user.getLockedUntil().isBefore(LocalDateTime.now())) {
+            // Auto-unlock
+            return false;
+        }
+        return true;
     }
 }

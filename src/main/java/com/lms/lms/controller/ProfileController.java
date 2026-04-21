@@ -18,6 +18,8 @@ public class ProfileController {
     private final NotificationService notificationService;
     private final MessageService messageService;
     private final FileStorageService fileStorageService;
+    private final UserSessionService userSessionService;
+    private final LoginLogService loginLogService;
 
 
     @GetMapping("")
@@ -28,9 +30,12 @@ public class ProfileController {
     }
 
     @GetMapping("/edit")
-    public String editProfile(Model model, Authentication auth) {
+    public String editProfile(Model model, Authentication auth, jakarta.servlet.http.HttpServletRequest request) {
         User user = userService.findByUsername(auth.getName()).orElseThrow();
         model.addAttribute("user", user);
+        model.addAttribute("activeSessions", userSessionService.getActiveSessionsForUser(user));
+        model.addAttribute("loginHistory", loginLogService.findRecentByUser(user, 5));
+        model.addAttribute("currentSessionId", request.getSession().getId());
         return "profile/edit";
     }
 
@@ -77,12 +82,22 @@ public class ProfileController {
             ra.addFlashAttribute("error", "New passwords do not match!");
             return "redirect:/profile/edit";
         }
-        if (newPass.length() < 6) {
-            ra.addFlashAttribute("error", "Password must be at least 6 characters!");
+        
+        // Password strength validation: 8+ chars, at least one letter and one number
+        if (newPass.length() < 8 || !newPass.matches(".*[a-zA-Z].*") || !newPass.matches(".*\\d.*")) {
+            ra.addFlashAttribute("error", "Password must be at least 8 characters and contain both letters and numbers!");
             return "redirect:/profile/edit";
         }
+        
         userService.updatePassword(user.getId(), newPass);
         ra.addFlashAttribute("success", "Password changed successfully!");
         return "redirect:/profile";
+    }
+
+    @PostMapping("/sessions/revoke/{sessionId}")
+    public String revokeSession(@PathVariable("sessionId") String sessionId, Authentication auth, RedirectAttributes ra) {
+        userSessionService.revokeSession(sessionId);
+        ra.addFlashAttribute("success", "Session revoked.");
+        return "redirect:/profile/edit";
     }
 }

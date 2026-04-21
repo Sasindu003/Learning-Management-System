@@ -7,7 +7,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 @Configuration
 @EnableWebSecurity
@@ -22,11 +25,21 @@ public class SecurityConfig {
         }
 
         @Bean
+        public SessionRegistry sessionRegistry() {
+                return new SessionRegistryImpl();
+        }
+
+        @Bean
+        public HttpSessionEventPublisher httpSessionEventPublisher() {
+                return new HttpSessionEventPublisher();
+        }
+
+        @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 http
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/fonts/**",
-                                                                "/favicon.ico")
+                                                                 "/favicon.ico")
                                                 .permitAll()
                                                 .requestMatchers("/h2-console/**").hasRole("ADMIN")
                                                 .requestMatchers("/files/**").authenticated()
@@ -51,6 +64,10 @@ public class SecurityConfig {
                                 .rememberMe(remember -> remember
                                                 .key(rememberMeKey)
                                                 .tokenValiditySeconds(86400))
+                                .sessionManagement(session -> session
+                                                .maximumSessions(5)
+                                                .maxSessionsPreventsLogin(false)
+                                                .sessionRegistry(sessionRegistry()))
                                 .csrf(csrf -> csrf
                                                 .ignoringRequestMatchers("/h2-console/**", "/api/**"))
                                 .headers(headers -> headers

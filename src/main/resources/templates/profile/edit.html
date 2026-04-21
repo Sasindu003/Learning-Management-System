@@ -48,13 +48,79 @@
                             <input type="password" name="currentPassword" class="form-control" required>
                         </div>
                         <div class="form-group"><label class="form-label">New Password *</label>
-                            <input type="password" name="newPassword" class="form-control" required minlength="6">
+                            <input type="password" name="newPassword" class="form-control" required minlength="8">
+                            <small class="text-muted">Minimum 8 characters, must include a letter and a number.</small>
                         </div>
                         <div class="form-group"><label class="form-label">Confirm Password *</label>
-                            <input type="password" name="confirmPassword" class="form-control" required minlength="6">
+                            <input type="password" name="confirmPassword" class="form-control" required minlength="8">
                         </div>
                         <button type="submit" class="btn btn-warning">Change Password</button>
                     </form>
+                </div>
+
+                <!-- Active Sessions -->
+                <div class="glass-card">
+                    <h3 class="mb-2">🕵️ Active Sessions</h3>
+                    <p class="text-muted mb-2" style="font-size: 14px;">These are the browsers currently logged into your account. You can revoke any session to log it out immediately.</p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Device / Browser</th>
+                                    <th>IP Address</th>
+                                    <th>Last Activity</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="sess : ${activeSessions}">
+                                    <td>
+                                        <div style="font-weight: 500;">
+                                            <span th:text="${sess.sessionId == currentSessionId} ? 'Current Session' : 'Other Browser'">Session</span>
+                                            <span th:if="${sess.sessionId == currentSessionId}" class="badge badge-success" style="font-size: 10px; margin-left: 5px;">This device</span>
+                                        </div>
+                                        <small class="text-muted" style="display: block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" th:title="${sess.userAgent}" th:text="${sess.userAgent}">UA</small>
+                                    </td>
+                                    <td th:text="${sess.ipAddress}">IP</td>
+                                    <td th:text="${#temporals.format(sess.lastSeenAt, 'MMM dd, HH:mm')}">Time</td>
+                                    <td>
+                                        <form th:if="${sess.sessionId != currentSessionId}" th:action="@{/profile/sessions/revoke/{id}(id=${sess.sessionId})}" method="post">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Revoke this session?')">Revoke</button>
+                                        </form>
+                                        <span th:if="${sess.sessionId == currentSessionId}" class="text-muted" style="font-size: 12px;">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Login History -->
+                <div class="glass-card">
+                    <h3 class="mb-2">📊 Recent Login Activity</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>IP Address</th>
+                                    <th>Time</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="log : ${loginHistory}">
+                                    <td>
+                                        <span th:if="${log.success}" class="badge badge-success">Success</span>
+                                        <span th:unless="${log.success}" class="badge badge-danger">Failed</span>
+                                    </td>
+                                    <td th:text="${log.ipAddress}">IP</td>
+                                    <td th:text="${#temporals.format(log.timestamp, 'MMM dd, HH:mm:ss')}">Time</td>
+                                    <td style="font-size: 12px; color: var(--danger-color);" th:text="${log.failureReason}">Reason</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             <div class="mt-2"><a href="/profile" class="btn btn-secondary">← Back to Profile</a></div>

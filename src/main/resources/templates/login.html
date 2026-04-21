@@ -55,7 +55,9 @@
                      class="alert alert-danger"
                      id="login-error"
                      role="alert">
-                    ❌ Invalid username or password. Please try again.
+                    <span th:if="${session['SPRING_SECURITY_LAST_EXCEPTION'] != null}" 
+                          th:text="${session['SPRING_SECURITY_LAST_EXCEPTION'].message}">❌ Error</span>
+                    <span th:unless="${session['SPRING_SECURITY_LAST_EXCEPTION'] != null}">❌ Invalid username or password.</span>
                 </div>
                 <div th:if="${param.logout}"
                      class="alert alert-success"
