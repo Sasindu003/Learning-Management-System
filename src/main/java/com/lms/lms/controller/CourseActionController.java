@@ -20,6 +20,19 @@ public class CourseActionController {
     private final UserService userService;
     private final CourseService courseService;
 
+    @GetMapping("/{id}")
+    public String viewCourse(@PathVariable("id") Long id, Authentication auth) {
+        User user = userService.findByUsername(auth.getName()).orElseThrow();
+        if (user.getRole() == User.Role.STUDENT) {
+            return "redirect:/student/courses/" + id;
+        } else if (user.getRole() == User.Role.TEACHER) {
+            return "redirect:/teacher/courses/" + id;
+        } else if (user.getRole() == User.Role.ADMIN) {
+            return "redirect:/admin/courses"; // Admin list
+        }
+        return "redirect:/dashboard";
+    }
+
     @GetMapping("/{id}/toggle-pin")
     public String togglePin(@PathVariable("id") Long id, Authentication auth, RedirectAttributes ra) {
         User user = userService.findByUsername(auth.getName()).orElseThrow();

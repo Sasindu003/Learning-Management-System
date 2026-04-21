@@ -186,13 +186,14 @@
                     aria-expanded="false"
                     aria-controls="sidebar"
                     style="margin-right:12px">☰</button>
-            <button id="theme-toggle"
-                    class="btn btn-secondary btn-sm"
-                    aria-label="Toggle dark mode"
-                    style="margin-right:12px">🌓</button>
             <h2 th:text="${title}">Page Title</h2>
         </div>
         <div class="topbar-actions">
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                <span class="theme-icon">🌓</span>
+                <span class="theme-text">Light</span>
+            </button>
             <!-- Notifications Popup -->
             <div class="notification-dropdown">
                 <button class="notification-bell" id="notif-icon" aria-label="Notifications">

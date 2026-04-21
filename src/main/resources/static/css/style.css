@@ -692,10 +692,21 @@ tbody tr:last-child td {
     text-decoration: none;
     font-size: 20px;
     transition: var(--transition);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }
 
 .notification-bell:hover {
-    color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--primary);
 }
 
 .notification-bell .count {
@@ -725,6 +736,51 @@ tbody tr:last-child td {
     50% {
         box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
     }
+}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    margin-right: 28px; /* Extra space as requested */
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.theme-icon {
+    font-size: 18px;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.theme-text {
+    line-height: 1;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Animation triggers */
+.theme-toggle-btn.switching .theme-icon {
+    transform: rotate(360deg) scale(1.2);
+}
+
+.theme-toggle-btn.switching .theme-text {
+    opacity: 0;
+    transform: translateX(10px);
 }
 
 /* ===== Modal ===== */
@@ -1472,12 +1528,7 @@ tbody tr:last-child td {
     display: inline-block;
 }
 
-#discussion-icon {
-    border: none;
-    background: none;
-    cursor: pointer;
-    line-height: 1;
-}
+
 
 .dropdown-popup {
     display: none;

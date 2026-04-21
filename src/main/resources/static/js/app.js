@@ -25,7 +25,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateThemeIcon(theme) {
         if (!themeToggle) return;
-        themeToggle.textContent = theme === 'light' ? '🌓' : '☀️';
+        
+        const iconEl = themeToggle.querySelector('.theme-icon');
+        const textEl = themeToggle.querySelector('.theme-text');
+        
+        if (iconEl && textEl) {
+            // Trigger animation
+            themeToggle.classList.add('switching');
+            setTimeout(() => themeToggle.classList.remove('switching'), 500);
+
+            iconEl.textContent = theme === 'light' ? '🌓' : '☀️';
+            textEl.textContent = theme === 'light' ? 'Light' : 'Dark';
+        }
+        
         themeToggle.title = theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
     }
 
@@ -139,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </a>`;
             } else if (type === 'disc') {
                 return `
-                    <a href="/teacher/courses/${item.courseId}" class="dropdown-item">
+                    <a href="/courses/${item.courseId}" class="dropdown-item">
                         <span class="course-name">${item.courseName}</span>
                         <span class="msg-snippet"><strong>${item.senderName}:</strong> ${item.lastMessage}</span>
                         <span class="msg-meta">${new Date(item.sentAt).toLocaleString()}</span>
