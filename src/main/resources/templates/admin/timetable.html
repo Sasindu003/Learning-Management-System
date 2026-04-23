@@ -17,8 +17,9 @@
 
             <div class="data-grid">
                 <div class="glass-card">
-                    <h3 class="mb-2">➕ Add Timetable Slot</h3>
+                    <h3 class="mb-2" id="formTitle">➕ Add Timetable Slot</h3>
                     <form th:action="@{/admin/timetable/save}" method="post" data-validate>
+                        <input type="hidden" name="id" id="entryId">
                         <div class="data-grid">
                             <div class="form-group">
                                 <label class="form-label">Teacher *</label>
@@ -69,7 +70,8 @@
                                 <input type="text" name="room" class="form-control" placeholder="Room number">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Slot</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Add Slot</button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none" onclick="resetForm()">Cancel</button>
                     </form>
                 </div>
 
@@ -97,6 +99,7 @@
                                     <td th:text="${tt.teacher.fullName}">Teacher</td>
                                     <td th:text="${tt.room ?: '-'}">Room</td>
                                     <td>
+                                        <button class="btn btn-info btn-sm" th:onclick="'editTimetable(' + ${tt.id} + ')'">Edit</button>
                                         <a th:href="@{/admin/timetable/delete/{id}(id=${tt.id})}"
                                             class="btn btn-danger btn-sm" data-confirm="Delete?">×</a>
                                     </td>
@@ -158,6 +161,55 @@
                 });
             }
         });
+
+        async function editTimetable(id) {
+            try {
+                const response = await fetch(`/admin/timetable/edit/${id}`);
+                const data = await response.json();
+                
+                document.getElementById('formTitle').innerText = '✏️ Edit Timetable Slot';
+                document.getElementById('submitBtn').innerText = 'Update Slot';
+                document.getElementById('cancelBtn').style.display = 'inline-block';
+                document.getElementById('entryId').value = data.id;
+                
+                const teacherSelect = document.getElementById('teacherSelect');
+                teacherSelect.value = data.teacherId;
+                
+                // Trigger change to populate grades and subjects
+                const changeEvent = new Event('change');
+                teacherSelect.dispatchEvent(changeEvent);
+                
+                // Wait for async selects to populate
+                setTimeout(() => {
+                    document.getElementById('gradeSelect').value = data.gradeId;
+                    document.getElementById('subjectSelect').value = data.subjectId;
+                }, 500);
+                
+                document.querySelector('[name="dayOfWeek"]').value = data.dayOfWeek;
+                document.querySelector('[name="startTime"]').value = data.startTime;
+                document.querySelector('[name="endTime"]').value = data.endTime;
+                document.querySelector('[name="room"]').value = data.room || '';
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error fetching timetable entry:', error);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('formTitle').innerText = '➕ Add Timetable Slot';
+            document.getElementById('submitBtn').innerText = 'Add Slot';
+            document.getElementById('cancelBtn').style.display = 'none';
+            document.getElementById('entryId').value = '';
+            document.querySelector('form[data-validate]').reset();
+            
+            const gradeSelect = document.getElementById('gradeSelect');
+            const subjectSelect = document.getElementById('subjectSelect');
+            gradeSelect.disabled = true;
+            gradeSelect.innerHTML = '<option value="">Select Teacher First</option>';
+            subjectSelect.disabled = true;
+            subjectSelect.innerHTML = '<option value="">Select Teacher First</option>';
+        }
     </script>
 </body>
 

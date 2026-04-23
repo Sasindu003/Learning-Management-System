@@ -479,13 +479,16 @@ public class AdminController {
             @RequestParam("startTime") java.time.LocalTime startTime,
             @RequestParam("endTime") java.time.LocalTime endTime,
             @RequestParam(value = "room", required = false) String room,
+            @RequestParam(value = "id", required = false) Long id,
             RedirectAttributes ra) {
-        Timetable tt = Timetable.builder()
-                .grade(gradeService.findById(gradeId).orElseThrow())
-                .subject(subjectService.findById(subjectId).orElseThrow())
-                .teacher(userService.findById(teacherId).orElseThrow())
-                .dayOfWeek(dayOfWeek).startTime(startTime).endTime(endTime).room(room)
-                .build();
+        Timetable tt = id != null ? timetableService.findById(id).orElse(new Timetable()) : new Timetable();
+        tt.setGrade(gradeService.findById(gradeId).orElseThrow());
+        tt.setSubject(subjectService.findById(subjectId).orElseThrow());
+        tt.setTeacher(userService.findById(teacherId).orElseThrow());
+        tt.setDayOfWeek(dayOfWeek);
+        tt.setStartTime(startTime);
+        tt.setEndTime(endTime);
+        tt.setRoom(room);
 
         List<String> errors = timetableService.validate(tt);
         if (!errors.isEmpty()) {
@@ -494,7 +497,7 @@ public class AdminController {
         }
 
         timetableService.save(tt);
-        ra.addFlashAttribute("success", "Timetable slot added!");
+        ra.addFlashAttribute("success", id != null ? "Timetable slot updated!" : "Timetable slot added!");
         return "redirect:/admin/timetable";
     }
 
@@ -503,6 +506,22 @@ public class AdminController {
         timetableService.delete(id);
         ra.addFlashAttribute("success", "Timetable slot deleted!");
         return "redirect:/admin/timetable";
+    }
+
+    @GetMapping("/timetable/edit/{id}")
+    @ResponseBody
+    public Map<String, Object> getTimetableJson(@PathVariable("id") Long id) {
+        Timetable tt = timetableService.findById(id).orElseThrow();
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", tt.getId());
+        map.put("teacherId", tt.getTeacher().getId());
+        map.put("gradeId", tt.getGrade().getId());
+        map.put("subjectId", tt.getSubject().getId());
+        map.put("dayOfWeek", tt.getDayOfWeek().name());
+        map.put("startTime", tt.getStartTime().toString());
+        map.put("endTime", tt.getEndTime().toString());
+        map.put("room", tt.getRoom());
+        return map;
     }
 
     // === Announcement Edit ===
