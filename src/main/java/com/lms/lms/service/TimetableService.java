@@ -28,6 +28,9 @@ public class TimetableService {
     }
 
     public Timetable save(Timetable timetable) {
+        if (timetable.getRoom() != null) {
+            timetable.setRoom(timetable.getRoom().trim());
+        }
         return timetableRepository.save(timetable);
     }
 
@@ -65,7 +68,8 @@ public class TimetableService {
 
         // Room overlap
         if (candidate.getRoom() != null && !candidate.getRoom().trim().isEmpty()) {
-            List<Timetable> roomSlots = timetableRepository.findByRoomAndDayOfWeek(candidate.getRoom(), candidate.getDayOfWeek());
+            String room = candidate.getRoom().trim();
+            List<Timetable> roomSlots = timetableRepository.findByRoomIgnoreCaseAndDayOfWeek(room, candidate.getDayOfWeek());
             for (Timetable existing : roomSlots) {
                 if (overlaps(candidate, existing)) {
                     errors.add("Room " + candidate.getRoom() + " is already occupied: " + 

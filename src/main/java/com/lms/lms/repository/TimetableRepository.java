@@ -18,4 +18,6 @@ public interface TimetableRepository extends JpaRepository<Timetable, Long> {
     List<Timetable> findByTeacherAndDayOfWeek(User teacher, Timetable.DayOfWeek dayOfWeek);
 
     List<Timetable> findByRoomAndDayOfWeek(String room, Timetable.DayOfWeek dayOfWeek);
+
+    List<Timetable> findByRoomIgnoreCaseAndDayOfWeek(String room, Timetable.DayOfWeek dayOfWeek);
 }
