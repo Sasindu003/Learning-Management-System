@@ -322,13 +322,12 @@ public class StudentController {
         Set<String> coursesList = new TreeSet<>();
         Set<String> filterTerms = new TreeSet<>();
         
-        // Add terms from database first (so even empty terms appear)
-        termService.findAll().forEach(t -> filterTerms.add(t.getName()));
+        // Add only active terms from database
+        termService.findActive().forEach(t -> filterTerms.add(t.getName()));
         
         for (UnifiedGradeDTO dto : allGrades) {
             if (dto.getSubjectName() != null) subjects.add(dto.getSubjectName());
             if (dto.getCourseTitle() != null) coursesList.add(dto.getCourseTitle());
-            if (dto.getTerm() != null) filterTerms.add(dto.getTerm());
         }
 
         // Apply filters
