@@ -429,6 +429,13 @@ public class AdminController {
         return map;
     }
 
+    @PostMapping("/terms/toggle/{id}")
+    public String toggleTerm(@PathVariable("id") Long id, RedirectAttributes ra) {
+        termService.toggleStatus(id);
+        ra.addFlashAttribute("success", "Term status updated!");
+        return "redirect:/admin/terms";
+    }
+
     @GetMapping("/terms/delete/{id}")
     public String deleteTerm(@PathVariable("id") Long id, RedirectAttributes ra) {
         termService.delete(id);

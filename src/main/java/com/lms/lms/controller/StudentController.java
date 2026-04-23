@@ -28,6 +28,7 @@ public class StudentController {
     private final MessageService messageService;
     private final AnnouncementService announcementService;
     private final TimetableService timetableService;
+    private final AcademicTermService termService;
 
 
     @GetMapping("/dashboard")
@@ -278,7 +279,7 @@ public class StudentController {
         // 2. Fetch Assignments
         List<AssignmentSubmission> submissions = assignmentService.getStudentSubmissions(student);
         for (AssignmentSubmission s : submissions) {
-            String subTerm = "Term - " + s.getSubmittedAt().getYear() + " " + s.getSubmittedAt().getMonth().name();
+            String subTerm = termService.getTermNameForDate(s.getSubmittedAt().toLocalDate());
             double pct = s.getAssignment().getMaxMarks() > 0 && s.getMarks() != null 
                     ? ((double) s.getMarks() / s.getAssignment().getMaxMarks()) * 100 : 0.0;
             allGrades.add(UnifiedGradeDTO.builder()
@@ -300,7 +301,7 @@ public class StudentController {
         List<ExamAttempt> attempts = examService.getStudentAttempts(student);
         for (ExamAttempt a : attempts) {
             if (!a.isCompleted()) continue;
-            String examTerm = "Term - " + a.getEndTime().getYear() + " " + a.getEndTime().getMonth().name();
+            String examTerm = termService.getTermNameForDate(a.getEndTime().toLocalDate());
             allGrades.add(UnifiedGradeDTO.builder()
                 .type("Quiz")
                 .subjectName(a.getExam().getCourse().getSubject().getName())
@@ -318,12 +319,16 @@ public class StudentController {
 
         // Extract distinct filter options
         Set<String> subjects = new TreeSet<>();
-        Set<String> courses = new TreeSet<>();
-        Set<String> terms = new TreeSet<>();
+        Set<String> coursesList = new TreeSet<>();
+        Set<String> filterTerms = new TreeSet<>();
+        
+        // Add terms from database first (so even empty terms appear)
+        termService.findAll().forEach(t -> filterTerms.add(t.getName()));
+        
         for (UnifiedGradeDTO dto : allGrades) {
             if (dto.getSubjectName() != null) subjects.add(dto.getSubjectName());
-            if (dto.getCourseTitle() != null) courses.add(dto.getCourseTitle());
-            if (dto.getTerm() != null) terms.add(dto.getTerm());
+            if (dto.getCourseTitle() != null) coursesList.add(dto.getCourseTitle());
+            if (dto.getTerm() != null) filterTerms.add(dto.getTerm());
         }
 
         // Apply filters
@@ -362,8 +367,8 @@ public class StudentController {
         model.addAttribute("selectedType", type != null ? type : "All");
         
         model.addAttribute("allSubjects", subjects);
-        model.addAttribute("allCourses", courses);
-        model.addAttribute("allTerms", terms);
+        model.addAttribute("allCourses", coursesList);
+        model.addAttribute("allTerms", filterTerms);
 
         return "student/grades";
     }

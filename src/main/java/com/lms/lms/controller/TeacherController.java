@@ -34,6 +34,7 @@ public class TeacherController {
     private final AnnouncementService announcementService;
     private final TimetableService timetableService;
     private final ActivityLogService activityLogService;
+    private final AcademicTermService termService;
 
 
     @GetMapping("/dashboard")
@@ -498,6 +499,14 @@ public class TeacherController {
         model.addAttribute("course", course);
         model.addAttribute("students", userService.findStudentsByGrade(course.getGrade()));
         model.addAttribute("grades", studentGradeService.findByCourse(course));
+        model.addAttribute("allTerms", termService.findAll());
+        
+        String defaultTermName = termService.getTermNameForDate(java.time.LocalDate.now());
+        if (defaultTermName.startsWith("Other") && !termService.findActive().isEmpty()) {
+            defaultTermName = termService.findActive().get(0).getName();
+        }
+        model.addAttribute("defaultTermName", defaultTermName);
+        
         return "teacher/grading";
     }
 

@@ -5,6 +5,7 @@ import com.lms.lms.repository.AcademicTermRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -20,22 +21,30 @@ public class AcademicTermService {
         return termRepository.findById(id);
     }
 
-    public Optional<AcademicTerm> findActive() {
+    public List<AcademicTerm> findActive() {
         return termRepository.findByActiveTrue();
+    }
+
+    public String getTermNameForDate(LocalDate date) {
+        if (date == null) return "Unknown Term";
+        List<AcademicTerm> terms = termRepository.findByDate(date);
+        if (!terms.isEmpty()) {
+            return terms.get(0).getName();
+        }
+        // Fallback to month-year format if no term defined for that date
+        return "Other (" + date.getYear() + " " + date.getMonth().name() + ")";
     }
 
     @Transactional
     public AcademicTerm save(AcademicTerm term) {
-        if (term.isActive()) {
-            findActive().ifPresent(t -> {
-                // Only deactivate if it's a different term
-                if (term.getId() == null || !t.getId().equals(term.getId())) {
-                    t.setActive(false);
-                    termRepository.save(t);
-                }
-            });
-        }
         return termRepository.save(term);
+    }
+
+    @Transactional
+    public void toggleStatus(Long id) {
+        AcademicTerm term = termRepository.findById(id).orElseThrow();
+        term.setActive(!term.isActive());
+        termRepository.save(term);
     }
 
     @Transactional

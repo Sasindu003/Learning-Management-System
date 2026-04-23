@@ -66,6 +66,11 @@
                                             th:text="${t.active} ? 'Active' : 'Inactive'">Status</span></td>
                                     <td class="inline-flex">
                                         <button class="btn btn-sm btn-info" th:onclick="'editTerm(' + ${t.id} + ')'">Edit</button>
+                                        <form th:action="@{/admin/terms/toggle/{id}(id=${t.id})}" method="post" style="display:inline">
+                                            <button type="submit" class="btn btn-sm" 
+                                                th:classappend="${t.active} ? 'btn-secondary' : 'btn-success'"
+                                                th:text="${t.active} ? 'Deactivate' : 'Activate'">Toggle</button>
+                                        </form>
                                         <a th:href="@{/admin/terms/delete/{id}(id=${t.id})}"
                                             class="btn btn-danger btn-sm" data-confirm="Delete?">Delete</a>
                                     </td>
