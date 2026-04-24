@@ -101,7 +101,12 @@
                         </thead>
                         <tbody>
                             <tr th:each="e : ${exams}">
-                                <td th:text="${e.title}">Exam</td>
+                                <td class="flex-between">
+                                    <span th:text="${e.title}">Exam</span>
+                                    <a th:href="@{/teacher/exams/edit/{id}(id=${e.id})}" class="text-warning" title="Edit Title">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </a>
+                                </td>
                                 <td><span class="badge badge-primary" th:text="${e.type}">QUIZ</span></td>
                                 <td th:text="${e.examDate != null} ? ${#temporals.format(e.examDate, 'MMM dd, HH:mm')} : 'TBD'">Date</td>
                                 <td th:text="${e.durationMinutes} + ' min'">30 min</td>
@@ -113,6 +118,7 @@
                                         <a th:href="@{/teacher/exams/{id}/questions(id=${e.id})}" class="btn btn-info btn-sm">Questions</a>
                                         <a th:unless="${e.published}" th:href="@{/teacher/exams/{id}/publish(id=${e.id})}" class="btn btn-success btn-sm">Publish</a>
                                         <a th:if="${e.published}" th:href="@{/teacher/exams/{id}/results(id=${e.id})}" class="btn btn-primary btn-sm">Results</a>
+                                        <a th:href="@{/teacher/exams/edit/{id}(id=${e.id})}" class="btn btn-warning btn-sm">Edit</a>
                                         <a th:href="@{/teacher/exams/delete/{id}(id=${e.id})}" class="btn btn-danger btn-sm"
                                             data-confirm="Delete this exam?">×</a>
                                     </div>

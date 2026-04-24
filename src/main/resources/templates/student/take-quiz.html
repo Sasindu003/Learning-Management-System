@@ -56,6 +56,49 @@
         </main>
     </div>
     <script th:src="@{/js/app.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerEl = document.getElementById('quiz-timer');
+            const form = document.getElementById('quiz-form');
+            if (!timerEl || !form) return;
+
+            // Get duration from data attribute (minutes)
+            let duration = parseInt(timerEl.getAttribute('data-duration')) * 60; 
+            
+            if (isNaN(duration) || duration <= 0) {
+                timerEl.style.display = 'none';
+                return;
+            }
+
+            const updateTimer = () => {
+                const minutes = Math.floor(duration / 60);
+                const seconds = duration % 60;
+                timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (duration <= 60) {
+                    timerEl.classList.add('low-time');
+                }
+
+                if (duration <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Time is up! Your quiz will be submitted automatically.');
+                    form.submit();
+                }
+                duration--;
+            };
+
+            updateTimer();
+            const timerInterval = setInterval(updateTimer, 1000);
+            
+            // Prevent accidental page reload/navigation
+            window.addEventListener('beforeunload', (e) => {
+                if (duration > 0) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -186,7 +187,7 @@ public class TeacherController {
     public String saveAssignment(@RequestParam("courseId") Long courseId,
             @RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam("dueDate") LocalDateTime dueDate,
+            @RequestParam("dueDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate,
             @RequestParam(value = "maxMarks", defaultValue = "100") int maxMarks,
             @RequestParam(value = "file", required = false) MultipartFile file,
             RedirectAttributes ra) {
@@ -221,7 +222,7 @@ public class TeacherController {
     public String updateAssignment(@RequestParam("id") Long id,
             @RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam("dueDate") LocalDateTime dueDate,
+            @RequestParam("dueDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dueDate,
             @RequestParam(value = "maxMarks", defaultValue = "100") int maxMarks,
             @RequestParam(value = "file", required = false) MultipartFile file,
             RedirectAttributes ra) {
@@ -277,7 +278,7 @@ public class TeacherController {
             @RequestParam("title") String title,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam("type") Exam.ExamType type,
-            @RequestParam(value = "examDate", required = false) LocalDateTime examDate,
+            @RequestParam(value = "examDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime examDate,
             @RequestParam(value = "durationMinutes", defaultValue = "30") int duration,
             @RequestParam(value = "totalMarks", defaultValue = "100") int totalMarks,
             RedirectAttributes ra) {
@@ -290,6 +291,41 @@ public class TeacherController {
         examService.save(exam);
         ra.addFlashAttribute("success", "Exam created! Now add questions.");
         return "redirect:/teacher/exams/" + exam.getId() + "/questions";
+    }
+
+    @GetMapping("/exams/edit/{id}")
+    public String editExam(@PathVariable("id") Long id, Model model) {
+        Exam exam = examService.findById(id).orElseThrow();
+        model.addAttribute("exam", exam);
+        model.addAttribute("course", exam.getCourse());
+        return "teacher/exam-form";
+    }
+
+    @PostMapping("/exams/update")
+    public String updateExam(@RequestParam("id") Long id,
+            @RequestParam("title") String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam("type") Exam.ExamType type,
+            @RequestParam(value = "examDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime examDate,
+            @RequestParam(value = "durationMinutes", defaultValue = "30") int duration,
+            @RequestParam(value = "totalMarks", defaultValue = "100") int totalMarks,
+            RedirectAttributes ra) {
+        try {
+            Exam exam = examService.findById(id).orElseThrow();
+            exam.setTitle(title);
+            exam.setDescription(description);
+            exam.setType(type);
+            exam.setExamDate(examDate);
+            exam.setDurationMinutes(duration);
+            exam.setTotalMarks(totalMarks);
+            
+            examService.save(exam);
+            ra.addFlashAttribute("success", "Exam updated!");
+            return "redirect:/teacher/courses/" + exam.getCourse().getId();
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Update failed: " + e.getMessage());
+            return "redirect:/teacher/exams/edit/" + id;
+        }
     }
 
     @GetMapping("/exams/{id}/questions")

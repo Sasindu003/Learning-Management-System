@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Exam — EduFlow LMS</title>
+    <title th:text="${exam != null} ? 'Edit Exam — EduFlow LMS' : 'Create Exam — EduFlow LMS'">Create Exam — EduFlow LMS</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
@@ -12,43 +12,48 @@
     <div class="app-layout">
         <div th:replace="~{fragments/layout :: sidebar}"></div>
         <main class="main-content">
-            <div th:replace="~{fragments/layout :: topbar('Create Exam / Quiz')}"></div>
+            <div th:replace="~{fragments/layout :: topbar(${exam != null} ? 'Edit Exam / Quiz' : 'Create Exam / Quiz')}"></div>
             <div th:replace="~{fragments/layout :: alerts}"></div>
             <div class="glass-card" style="max-width:640px">
                 <p class="mb-2"><span class="badge badge-primary" th:text="${course.title}">Course</span></p>
-                <form th:action="@{/teacher/exams/save}" method="post" data-validate>
+                <form th:action="${exam != null} ? @{/teacher/exams/update} : @{/teacher/exams/save}" method="post" data-validate>
                     <input type="hidden" name="courseId" th:value="${course.id}">
+                    <input type="hidden" name="id" th:if="${exam != null}" th:value="${exam.id}">
                     <div class="form-group"><label class="form-label">Title *</label>
-                        <input type="text" name="title" class="form-control" required placeholder="e.g. Chapter 1 Quiz">
+                        <input type="text" name="title" class="form-control" required placeholder="e.g. Chapter 1 Quiz"
+                            th:value="${exam != null} ? ${exam.title} : ''">
                     </div>
                     <div class="form-group"><label class="form-label">Description</label>
                         <textarea name="description" class="form-control" rows="2"
-                            placeholder="Exam description"></textarea>
+                            placeholder="Exam description" th:text="${exam != null} ? ${exam.description} : ''"></textarea>
                     </div>
                     <div class="data-grid">
                         <div class="form-group"><label class="form-label">Type *</label>
                             <select name="type" class="form-control" required>
-                                <option value="QUIZ">Quiz</option>
-                                <option value="MIDTERM">Midterm</option>
-                                <option value="FINAL">Final Exam</option>
-                                <option value="ASSIGNMENT_QUIZ">Assignment Quiz</option>
+                                <option value="QUIZ" th:selected="${exam != null and exam.type.name() == 'QUIZ'}">Quiz</option>
+                                <option value="MIDTERM" th:selected="${exam != null and exam.type.name() == 'MIDTERM'}">Midterm</option>
+                                <option value="FINAL" th:selected="${exam != null and exam.type.name() == 'FINAL'}">Final Exam</option>
+                                <option value="ASSIGNMENT_QUIZ" th:selected="${exam != null and exam.type.name() == 'ASSIGNMENT_QUIZ'}">Assignment Quiz</option>
                             </select>
                         </div>
                         <div class="form-group"><label class="form-label">Date</label>
                             <input type="datetime-local" name="examDate" class="form-control"
+                                th:value="${exam != null and exam.examDate != null} ? ${#temporals.format(exam.examDate, 'yyyy-MM-dd''T''HH:mm')} : ''"
                                 th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd''T''HH:mm')}">
                         </div>
                     </div>
                     <div class="data-grid">
                         <div class="form-group"><label class="form-label">Duration (minutes)</label>
-                            <input type="number" name="durationMinutes" class="form-control" value="30" min="5">
+                            <input type="number" name="durationMinutes" class="form-control" min="5"
+                                th:value="${exam != null} ? ${exam.durationMinutes} : 30">
                         </div>
                         <div class="form-group"><label class="form-label">Total Marks</label>
-                            <input type="number" name="totalMarks" class="form-control" value="100" min="1">
+                            <input type="number" name="totalMarks" class="form-control" min="1"
+                                th:value="${exam != null} ? ${exam.totalMarks} : 100">
                         </div>
                     </div>
-                    <div class="inline-flex"><button type="submit" class="btn btn-primary">Create & Add Questions
-                            →</button>
+                    <div class="inline-flex">
+                        <button type="submit" class="btn btn-primary" th:text="${exam != null} ? 'Update Exam' : 'Create & Add Questions →'"></button>
                         <a th:href="@{/teacher/courses/{id}(id=${course.id})}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>

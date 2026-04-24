@@ -1957,3 +1957,37 @@ tbody tr:last-child td {
     background: rgba(99, 102, 241, 0.1);
     color: var(--text-primary);
 }
+
+/* ===== Quiz Timer ===== */
+.quiz-timer {
+    position: fixed;
+    top: 100px;
+    right: 32px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 2px solid var(--primary);
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary);
+    z-index: 1000;
+    box-shadow: var(--glass-shadow);
+    transition: var(--transition);
+}
+
+.quiz-timer.low-time {
+    border-color: var(--danger);
+    color: var(--danger);
+    animation: pulse 1s infinite;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+@media (max-width: 768px) {
+    .quiz-timer {
+        position: static;
+        margin-bottom: 20px;
+        text-align: center;
+        width: 100%;
+    }
+}
