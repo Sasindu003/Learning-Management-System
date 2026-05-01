@@ -119,6 +119,25 @@ mvn clean package
 java -jar target/lms-0.0.1-SNAPSHOT.jar
 ```
 
+
+### Environment Variables (Required for Production)
+
+Never commit real credentials in `application.properties`. Configure secrets via environment variables instead:
+
+```bash
+export DB_URL='jdbc:postgresql://<host>:5432/postgres'
+export DB_USERNAME='postgres'
+export DB_PASSWORD='<your-db-password>'
+export JPA_DIALECT='org.hibernate.dialect.PostgreSQLDialect'
+
+export R2_BUCKET_NAME='lms'
+export R2_ENDPOINT='https://<account-id>.r2.cloudflarestorage.com'
+export R2_ACCESS_KEY='<your-r2-access-key>'
+export R2_SECRET_KEY='<your-r2-secret-key>'
+```
+
+For local development, defaults are safe (`H2` + empty secrets). For production, set all secret variables through your host's secret manager (Render/Railway/Vercel/Docker/Kubernetes) and rotate exposed keys immediately.
+
 ### Accessing the Application
 - **Web Application**: http://localhost:8080
 - **H2 Console**: http://localhost:8080/h2-console
