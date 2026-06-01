@@ -31,7 +31,7 @@ public class AcademicTermService {
         if (!terms.isEmpty()) {
             return terms.get(0).getName();
         }
-        // Fallback to month-year format if no term defined for that date
+        // Fallback to month, year format if no term defined for that date
         return "Other (" + date.getYear() + " " + date.getMonth().name() + ")";
     }
 
